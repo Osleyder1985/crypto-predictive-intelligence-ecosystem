@@ -8,7 +8,8 @@ Validate a bounded CPU-only quantitative data/model workflow on Python 3.12.x fo
 
 - Generates deterministic **synthetic** market-like OHLCV data using a fixed seed. It is not historical BTC data and cannot establish market predictability.
 - Builds lagged returns, rolling volatility and volume features. The target is the sign of the next bar return.
-- Uses a chronological 80/20 train/test split. Features at time t use only current/past bars; the label refers to t+1. The scaler is fitted only on the training partition.
+- Uses a chronological 80/20 train/test split and purges one boundary row because its t+1 label would otherwise touch the test period. The scaler is fitted only on the training partition.
+- Runs a causality mutation test: it changes all raw close/volume values from a future cutoff onward and asserts that earlier feature rows remain unchanged.
 - Builds the same features in pandas and Polars and asserts numeric/target parity.
 - Converts pandas data through a PyArrow table and verifies round-trip schema shape.
 - Trains/infer small CPU baselines with scikit-learn LogisticRegression, XGBoost, LightGBM and a small PyTorch MLP.
