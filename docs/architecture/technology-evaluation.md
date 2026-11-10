@@ -104,3 +104,40 @@ Cada aplazamiento debe resolverse por requisito y evidencia, no por preferencia 
 - [ ] Licencias revisadas para dependencias seleccionadas.
 - [ ] Versiones y políticas de actualización fijadas.
 - [ ] ADR convertido a Aceptado con evidencia.
+
+
+---
+
+## 8. Política `latest-stable-first` y matriz de compatibilidad (2026-11-10)
+
+Se adopta la política descrita en ADR-0002: evaluar primero la versión estable upstream más reciente, pero no aprobarla automáticamente. La **Validated Baseline** será una combinación exacta que haya superado POCs y controles; no equivale a la lista de releases más recientes.
+
+### Corrección de la recomendación de Python
+
+La recomendación anterior de Python 3.12.x como runtime inicial general queda sustituida. Python 3.15.2 es la última versión estable identificada en el corte y será la primera línea de evaluación general. Sin embargo, PyTorch documenta actualmente soporte de Python 3.9–3.12 en Windows. Por tanto, Python 3.12.x se mantiene únicamente como compatibility lane para la POC de PyTorch Windows. La viabilidad de separar entornos/procesos y compartir contratos/datasets se debe probar; no se asume resuelta.
+
+### Candidatos al corte
+
+| Tecnología | Candidato estable | Alternativa | Evidencia/limitación | Estado CPIE |
+|---|---|---|---|---|
+| Python | 3.15.2 | 3.12.x para PyTorch Windows | Python.org identifica 3.15.2 como último Python 3 estable; PyTorch Windows documenta 3.9–3.12 | No probado |
+| Node.js | 26.13.0 LTS | 24.22.2 LTS | Releases oficiales identifican ambas como LTS | No probado |
+| PostgreSQL | 18.6 | Otra major soportada si hay bloqueo de compatibilidad | Release notes oficiales de 18.6; revisar nuevo ciclo menor anunciado para 12-Nov-2026 | No probado |
+| PyTorch | Stable del selector oficial | CPU primero; GPU solo con hardware/POC que lo justifique | Capturar la versión exacta generada por el selector al ejecutar la POC; Windows documenta Python 3.9–3.12 | No probado |
+| Resto de librerías y frameworks | Última versión estable upstream al inicio de cada POC | Última línea soportada compatible | Registrar versión exacta, rango Python/Node, wheels, OS, licencia y fuente | No verificado |
+
+La matriz detallada, con campos de evidencia y estado, se mantiene en [Version Compatibility Matrix](version-compatibility-matrix.md). No se declaran versiones instaladas, pruebas superadas ni compatibilidad efectiva a partir de la documentación solamente.
+
+### Procedimiento obligatorio de actualización
+
+1. Consultar el canal oficial de releases y descartar pre-releases.
+2. Registrar versión, fecha, URL, soporte vigente, licencia y advisories relevantes.
+3. Resolver compatibilidad transitiva y disponibilidad de wheels/binarios para Windows 11 x64.
+4. Ejecutar pruebas aisladas y luego integración con fixtures reproducibles.
+5. Medir RAM, tiempo, almacenamiento y coste en condiciones documentadas; no inventar umbrales.
+6. Fijar versiones y hashes solo para la combinación probada; mantener lockfiles separados si existen lanes incompatibles.
+7. Promover a Validated Baseline únicamente con evidencia y revisión; documentar rollback y excepciones.
+
+### Estado
+
+La política queda documentada, pero la shortlist continúa provisional. No se han ejecutado POCs en el equipo Windows objetivo, no se han medido recursos y no se han aprobado versiones finales. Los checks de aceptación de la sección 7 que dependan de pruebas siguen pendientes.
