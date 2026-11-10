@@ -7,6 +7,8 @@ on:
       - ".github/workflows/python-windows-compatibility-poc.yml"
       - "scripts/poc/python_stack_probe.py"
       - "docs/quality/python-windows-compatibility-poc.md"
+      - "scripts/poc/python_cpi_workload_probe.py"
+      - "docs/quality/python-cpi-workload-poc.md"
 
 permissions:
   contents: read
@@ -50,6 +52,13 @@ jobs:
             $probeArgs += "--with-pytorch"
           }
           python @probeArgs
+
+      - name: Run bounded quantitative CPU workload (Python 3.12 lane)
+        if: matrix.pytorch
+        shell: pwsh
+        run: |
+          python scripts/poc/python_cpi_workload_probe.py `
+            --output poc-results/python-cpi-workload-${{ matrix.python-version }}.json
 
       - name: Upload POC evidence
         if: always()
