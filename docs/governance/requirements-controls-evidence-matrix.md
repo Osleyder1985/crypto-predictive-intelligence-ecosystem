@@ -95,6 +95,43 @@ Los identificadores RQ son estables. Los Issues especifican o implementan el ár
 
 Registro mínimo por evidencia: ID único; requisito/control; Issue, ADR, PR y commit; tipo de artefacto; versión/hash; fecha UTC; entorno/alcance; método y resultado PASS/FAIL/INCONCLUSIVE; responsable/revisor; limitaciones, excepciones y fecha de revisión. No publicar secretos, tokens ni datos personales innecesarios.
 
+
+### 4.1 Índice bidireccional de especificaciones de verificación
+
+Esta tabla enlaza cada requisito con las especificaciones de prueba de la estrategia [test-strategy.md](../quality/test-strategy.md) y con los procedimientos operacionales de [deployment-backup-recovery.md](../operations/deployment-backup-recovery.md). Los identificadores siguientes son **especificaciones planificadas**, no tests ejecutables ni evidencias de aprobación.
+
+| ID de verificación | Requisito(s) | Issue(s) | Especificación / ubicación | Estado |
+|---|---|---|---|---|
+| TST-QUAL-01 | RQ-003, RQ-015 | #3, #55 | Tipos de prueba, pirámide, criterios de implantación; test-strategy §§3–4, 13. | ESPECIFICADO; no ejecutado |
+| TST-SEC-01 | RQ-007, RQ-013, RQ-014, RQ-020 | #7, #51, #52, #55, #68 | Pruebas de seguridad, API/móvil, secretos y gates; test-strategy §§5.6, 8. | ESPECIFICADO; no ejecutado |
+| TST-DATA-01 | RQ-008 | #8–#28, #64 | Esquemas, calidad, duplicados, huecos, linaje y autorización; test-strategy §5.1. | ESPECIFICADO; no ejecutado |
+| TST-TIME-01 | RQ-008, RQ-010 | #8–#28, #29–#43, #60 | Point-in-time, joins temporales, disponibilidad y anti-leakage; test-strategy §§2, 5.1–5.3. | ESPECIFICADO; no ejecutado |
+| TST-ML-01 | RQ-009, RQ-010 | #29–#43, #60, #62, #63 | Walk-forward/OOS, benchmarks, costes, calibración, robustez y drift; test-strategy §5.3. | ESPECIFICADO; no ejecutado |
+| TST-RISK-01 | RQ-011 | #7, #44–#46 | Límites, fronteras, escenarios adversos y NO_TRADE; test-strategy §5.4. | ESPECIFICADO; no ejecutado |
+| TST-TRADING-01 | RQ-012 | #47–#50, #57–#59 | Idempotencia, estados, fills, reconciliación, sandbox y bloqueo LIVE; test-strategy §5.5. | ESPECIFICADO; no ejecutado |
+| TST-API-01 | RQ-013 | #7, #51, #55 | Contratos, autenticación, autorización, validación y errores; test-strategy §5.6. | ESPECIFICADO; no ejecutado |
+| TST-MOBILE-01 | RQ-014, RQ-019 | #52, #66 | Consistencia multiplataforma, accesibilidad y seguridad móvil; test-strategy §5.6. | ESPECIFICADO; no ejecutado |
+| TST-OPS-01 | RQ-016, RQ-020 | #53–#56, #68 | Backup, restauración, migraciones, rollback, alertas y recuperación; deployment-backup-recovery §§5–11. | ESPECIFICADO; no ejecutado |
+| TST-ORDER-RECOVERY-01 | RQ-012, RQ-016 | #47–#50, #56–#59 | Reinicio, respuesta perdida, fills parciales, reconciliación y no duplicación; deployment-backup-recovery §9. | ESPECIFICADO; no ejecutado |
+| TST-REGRESSION-01 | RQ-002, RQ-003, RQ-015, RQ-018 | #2, #3, #55, #67 | Tests de regresión vinculados a defectos y cambios; test-strategy §§3, 10. | ESPECIFICADO; no ejecutado |
+
+#### Índice inverso: especificación → requisitos
+
+- TST-QUAL-01 → RQ-003, RQ-015.
+- TST-SEC-01 → RQ-007, RQ-013, RQ-014, RQ-020.
+- TST-DATA-01 → RQ-008.
+- TST-TIME-01 → RQ-008, RQ-010.
+- TST-ML-01 → RQ-009, RQ-010.
+- TST-RISK-01 → RQ-011.
+- TST-TRADING-01 → RQ-012.
+- TST-API-01 → RQ-013.
+- TST-MOBILE-01 → RQ-014, RQ-019.
+- TST-OPS-01 → RQ-016, RQ-020.
+- TST-ORDER-RECOVERY-01 → RQ-012, RQ-016.
+- TST-REGRESSION-01 → RQ-002, RQ-003, RQ-015, RQ-018.
+
+**Regla de estado:** esta trazabilidad documental no permite marcar controles como VERIFICADO. Cada ID debe vincularse posteriormente a casos implementados, ejecución identificable, resultado, commit, entorno y evidencia. Hasta entonces, el estado permanece ESPECIFICADO/NO EJECUTADO.
+
 ## 5. Brechas iniciales comprobadas
 
 | ID | Brecha/evidencia | Issue | Acción | Estado |
