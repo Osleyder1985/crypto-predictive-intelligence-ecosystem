@@ -90,3 +90,58 @@ Este ADR solo pasará a Aceptado cuando las POCs críticas se ejecuten en el ent
 - React Native environment setup: https://reactnative.dev/docs/set-up-your-environment
 - Expo EAS Build: https://docs.expo.dev/build/
 - Docker Desktop WSL2: https://docs.docker.com/desktop/features/wsl/
+
+
+---
+
+## Addendum 1 — Política de selección `latest-stable-first` (2026-11-10)
+
+**Esta adenda prevalece sobre cualquier recomendación anterior de usar Python 3.12.x como runtime general inicial.** La recomendación 3.12 queda acotada a una línea de compatibilidad para componentes que todavía la exijan.
+
+### Política normativa del proyecto
+
+1. Para cada tecnología se identifica primero la versión estable más reciente publicada por el proyecto upstream en la fecha de evaluación.
+2. Se excluyen Alpha, Beta, Release Candidate, Nightly, Preview y builds experimentales de la baseline normal. Pueden probarse en una pista experimental aislada, sin promoverlas automáticamente.
+3. «Más reciente» no significa «aprobada». Ninguna versión pasa a la **Validated Baseline** sin superar pruebas unitarias, integración, seguridad, compatibilidad, reproducibilidad y rendimiento/coste aplicables.
+4. Se mantienen dos referencias diferenciadas:
+   - **Latest Stable Candidate:** versión estable upstream que conviene evaluar ahora.
+   - **Validated Baseline:** combinación exacta de versiones, plataformas, dependencias y artefactos que CPIE haya probado y aprobado.
+5. La matriz de compatibilidad es el registro de autoridad para candidatos, rangos soportados, restricciones, evidencia, estado de prueba y fecha de revisión.
+6. No se fijan versiones finales ni se actualizan lockfiles de producción antes de las POCs. Los experimentos sí deben registrar versiones exactas y hashes.
+7. Cada actualización se evalúa primero en una rama/CI aislada; no se promueve a la baseline por el mero hecho de ser un release estable nuevo.
+8. Si una dependencia crítica aún no soporta el runtime más reciente, se debe probar aislamiento por entorno/proceso o una línea secundaria compatible. No se degrada todo el stack sin demostrar que es necesario.
+9. Se registran OS, arquitectura, runtime, versión de paquete, backend de cómputo (CPU/GPU), gestor de paquetes, wheels/binarios disponibles y restricciones de compilación.
+10. Las versiones de seguridad deben revisarse también entre ciclos de mantenimiento; cualquier excepción o bloqueo debe quedar documentado.
+
+### Candidatos verificados al corte
+
+| Componente | Latest Stable Candidate al 2026-11-10 | Línea secundaria / restricción | Estado CPIE |
+|---|---|---|---|
+| Python | 3.15.2 | Python 3.12.x como compatibility lane para PyTorch en Windows, mientras la guía oficial mantenga ese límite | Candidato; no probado en CPIE |
+| Node.js | 26.13.0 LTS | 24.22.2 LTS como alternativa LTS | Candidato; no probado en CPIE |
+| PostgreSQL | 18.6 | Mantener otra major soportada solo si una dependencia o migración lo exige | Candidato; no probado en CPIE |
+| PyTorch | Build Stable ofrecida por el selector oficial en la fecha de la POC; registrar versión exacta y comando generado | En Windows, la guía consultada declara Python 3.9–3.12 | Versión exacta pendiente de captura y prueba |
+
+La página oficial de PostgreSQL anunciaba el siguiente ciclo de releases menores para el 12-Nov-2026; por tanto, 18.6 es el candidato documentado en este corte y la matriz debe revisarse después de esa publicación, sin anticipar su número o contenido.
+
+### Efecto sobre la shortlist
+
+- Python 3.15.x se convierte en la línea general prioritaria de evaluación, no en runtime aprobado.
+- Python 3.12.x se conserva como línea secundaria aislada para probar PyTorch en Windows. No se debe forzar la instalación de todo el stack científico en una sola versión de Python si la matriz demuestra incompatibilidad.
+- Node.js 26 LTS es la primera línea a evaluar para el ecosistema web/móvil; Node.js 24 LTS queda como alternativa de compatibilidad.
+- PostgreSQL 18.6 es el candidato de base de datos al corte, sujeto a actualización de patch y pruebas de backup/restore, migraciones, drivers y contenedores.
+- PyTorch debe instalarse desde el canal Stable oficial, no Preview/Nightly, y su versión exacta debe quedar registrada en la evidencia de POC.
+
+### POCs y promoción
+
+La primera fase compara entornos separados: (A) Python latest stable con librerías científicas compatibles; (B) Python 3.12 en Windows para PyTorch y dependencias requeridas. Se evaluará si ambas líneas pueden coexistir en entornos virtuales independientes o procesos aislados sin duplicación de datos ni contratos. La integración conjunta se probará solo después de verificar cada entorno por separado.
+
+La matriz viva está en [Version Compatibility Matrix](../architecture/version-compatibility-matrix.md). Hasta que se completen las POCs y la revisión de licencias, el estado del ADR continúa **Propuesto**.
+
+### Fuentes oficiales para los candidatos del corte
+
+- Python 3.15.2 (estable): https://www.python.org/getit/windows/
+- Node.js 26.13.0 LTS y 24.22.2 LTS: https://github.com/nodejs/node/releases
+- PostgreSQL 18.6: https://www.postgresql.org/docs/release/18.6/
+- Calendario de releases PostgreSQL: https://www.postgresql.org/developer/roadmap/
+- Selector Stable y restricciones Windows/Python de PyTorch: https://docs.pytorch.org/get-started/locally/
