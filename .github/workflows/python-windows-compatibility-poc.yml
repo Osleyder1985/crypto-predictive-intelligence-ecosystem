@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   python-stack:
-    name: Python \${{ matrix.python-version }} compatibility probe
+    name: Python ${{ matrix.python-version }} compatibility probe
     runs-on: windows-latest
     timeout-minutes: 60
     strategy:
@@ -32,7 +32,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: \${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
           architecture: x64
 
       - name: Record pip version
@@ -44,9 +44,9 @@ jobs:
           $probeArgs = @(
             "scripts/poc/python_stack_probe.py",
             "--output",
-            "poc-results/python-stack-report-\${{ matrix.python-version }}.json"
+            "poc-results/python-stack-report-${{ matrix.python-version }}.json"
           )
-          if ("\${{ matrix.pytorch }}" -eq "true") {
+          if ("${{ matrix.pytorch }}" -eq "true") {
             $probeArgs += "--with-pytorch"
           }
           python @probeArgs
@@ -55,6 +55,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: python-stack-\${{ matrix.python-version }}-windows
+          name: python-stack-${{ matrix.python-version }}-windows
           path: poc-results/*.json
           if-no-files-found: warn
