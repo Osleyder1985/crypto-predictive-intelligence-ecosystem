@@ -53,7 +53,7 @@ jobs:
 
       - name: Upload POC evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-stack-\${{ matrix.python-version }}-windows
           path: poc-results/*.json
