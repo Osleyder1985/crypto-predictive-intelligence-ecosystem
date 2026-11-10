@@ -49,18 +49,6 @@ def main() -> int:
         "smoke_tests": [],
     }
 
-    try:
-        import psutil
-        vm = psutil.virtual_memory()
-        report["hardware"] = {
-            "logical_cpu_count": psutil.cpu_count(logical=True),
-            "physical_cpu_count": psutil.cpu_count(logical=False),
-            "total_memory_bytes": vm.total,
-            "available_memory_bytes_at_start": vm.available,
-        }
-    except Exception as exc:
-        report["hardware_probe_error"] = repr(exc)
-
     packages = list(PACKAGES)
     if args.with_pytorch:
         packages.append(("torch", "torch"))
@@ -85,31 +73,45 @@ def main() -> int:
         except subprocess.TimeoutExpired:
             code, log = 124, "Installation timed out after 600 seconds."
         install_ok = code == 0
-        import_ok = False
-        import_error = None
-        module_version = None
-
-        if install_ok:
-            try:
-                imported = importlib.import_module(module)
-                module_version = getattr(imported, "__version__", None)
-                import_ok = True
-            except Exception as exc:
-                import_error = repr(exc)
-
         item = {
             "distribution": distribution,
             "module": module,
             "install_ok": install_ok,
-            "import_ok": import_ok,
-            "module_version": module_version,
+            "import_ok": None,
+            "module_version": None,
             "duration_seconds": round(time.perf_counter() - started, 3),
             "return_code": code,
             "install_log_tail": log,
-            "import_error": import_error,
+            "import_error": None,
         }
         report["package_results"].append(item)
-        if not (install_ok and import_ok):
+        if not install_ok:
+            failures += 1
+
+    # Import only after every installation finishes. This avoids stale modules
+    # if a later pip resolution upgrades a dependency already imported earlier.
+    try:
+        import psutil
+        vm = psutil.virtual_memory()
+        report["hardware"] = {
+            "logical_cpu_count": psutil.cpu_count(logical=True),
+            "physical_cpu_count": psutil.cpu_count(logical=False),
+            "total_memory_bytes": vm.total,
+            "available_memory_bytes_after_install": vm.available,
+        }
+    except Exception as exc:
+        report["hardware_probe_error"] = repr(exc)
+
+    for item in report["package_results"]:
+        if not item["install_ok"]:
+            continue
+        try:
+            imported = importlib.import_module(item["module"])
+            item["module_version"] = getattr(imported, "__version__", None)
+            item["import_ok"] = True
+        except Exception as exc:
+            item["import_ok"] = False
+            item["import_error"] = repr(exc)
             failures += 1
 
     tests = [
