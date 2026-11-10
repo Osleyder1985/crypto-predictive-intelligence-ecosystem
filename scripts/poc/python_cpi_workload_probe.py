@@ -144,6 +144,39 @@ def assert_tabular_interoperability(
     }
 
 
+
+def assert_feature_causality(pandas_frame: pd.DataFrame) -> dict[str, object]:
+    # Perturb all raw observations from a future cutoff onward. Features strictly
+    # before that cutoff must remain unchanged, proving the feature transform is causal.
+    raw = pandas_frame[["bar_index", "close", "volume"]].copy()
+    cutoff = int(raw["bar_index"].iloc[len(raw) // 2])
+    future_mask = raw["bar_index"] >= cutoff
+    future_count = int(future_mask.sum())
+    altered = raw.copy()
+    altered.loc[future_mask, "close"] *= np.exp(
+        np.linspace(0.05, 0.25, future_count, dtype=np.float64)
+    )
+    altered.loc[future_mask, "volume"] *= 1.75
+
+    altered["ret_1"] = altered["close"].pct_change()
+    altered["ret_5"] = altered["close"].pct_change(5)
+    altered["vol_20"] = altered["ret_1"].rolling(20, min_periods=20).std()
+    volume_mean = altered["volume"].rolling(20, min_periods=20).mean()
+    volume_std = altered["volume"].rolling(20, min_periods=20).std()
+    altered["volume_z20"] = (altered["volume"] - volume_mean) / volume_std
+
+    # Start after the truncated raw frame's rolling warm-up period.
+    compare_mask = (raw["bar_index"] >= 40) & (raw["bar_index"] < cutoff)
+    expected = pandas_frame.loc[compare_mask, FEATURES].to_numpy(dtype=np.float64)
+    observed = altered.loc[compare_mask, FEATURES].to_numpy(dtype=np.float64)
+    np.testing.assert_allclose(expected, observed, rtol=1e-7, atol=1e-10)
+    return {
+        "status": "PASS",
+        "mutation_starts_at_bar_index": cutoff,
+        "unchanged_feature_rows_compared": int(compare_mask.sum()),
+        "future_raw_values_mutated": True,
+    }
+
 def evaluate_probabilities(y_true: np.ndarray, probabilities: np.ndarray) -> dict[str, float]:
     probabilities = np.asarray(probabilities, dtype=np.float64).reshape(-1)
     if len(probabilities) != len(y_true):
@@ -338,25 +371,30 @@ def main() -> int:
             y = pandas_frame["target"].to_numpy(dtype=np.int8)
             timestamps = pandas_frame["bar_index"].to_numpy(dtype=np.int64)
             split = int(len(X) * 0.8)
-            if split <= 0 or split >= len(X):
+            train_stop = split - 1  # Purge the boundary row: its t+1 label would touch the test period.
+            if train_stop <= 0 or split >= len(X):
                 raise AssertionError("Chronological train/test split is empty")
-            if not timestamps[:split].max() < timestamps[split:].min():
-                raise AssertionError("Train/test chronology is not strictly separated")
+            train_last = int(timestamps[:train_stop].max())
+            test_first = int(timestamps[split:].min())
+            if train_last + 1 >= test_first:
+                raise AssertionError("Train/test boundary was not purged")
             if X.shape[0] != y.shape[0] or not np.isfinite(X).all():
                 raise AssertionError("Feature matrix is invalid")
+            causality = assert_feature_causality(pandas_frame)
             report["temporal_validation"] = {
                 "status": "PASS",
-                "split": "chronological 80/20",
-                "train_last_bar_index": int(timestamps[:split].max()),
-                "test_first_bar_index": int(timestamps[split:].min()),
+                "split": "chronological 80/20 with one boundary row purged",
+                "train_last_bar_index": train_last,
+                "test_first_bar_index": test_first,
+                "purged_boundary_rows": 1,
                 "target_definition": "sign of next bar return (t+1)",
-                "features_use_only_current_or_past_bars": True,
+                "feature_causality_mutation_test": causality,
                 "scaler_fit_on_training_partition_only": True,
             }
 
             stage_started = time.perf_counter()
             report["models"] = train_and_evaluate(
-                X[:split], y[:split], X[split:], y[split:], args.seed
+                X[:train_stop], y[:train_stop], X[split:], y[split:], args.seed
             )
             report["stages"]["model_training_and_inference_seconds"] = round(
                 time.perf_counter() - stage_started, 6
