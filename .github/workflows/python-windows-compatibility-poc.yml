@@ -1,0 +1,60 @@
+name: Python Windows compatibility POC
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/python-windows-compatibility-poc.yml"
+      - "scripts/poc/python_stack_probe.py"
+      - "docs/quality/python-windows-compatibility-poc.md"
+
+permissions:
+  contents: read
+
+jobs:
+  python-stack:
+    name: Python ${{ matrix.python-version }} compatibility probe
+    runs-on: windows-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.15"
+            pytorch: false
+          - python-version: "3.12"
+            pytorch: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Record pip version
+        run: python -m pip --version
+
+      - name: Run isolated latest-stable package probe
+        shell: pwsh
+        run: |
+          $probeArgs = @(
+            "scripts/poc/python_stack_probe.py",
+            "--output",
+            "poc-results/python-stack-report-${{ matrix.python-version }}.json"
+          )
+          if ("${{ matrix.pytorch }}" -eq "true") {
+            $probeArgs += "--with-pytorch"
+          }
+          python @probeArgs
+
+      - name: Upload POC evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-stack-${{ matrix.python-version }}-windows
+          path: poc-results/*.json
+          if-no-files-found: warn
