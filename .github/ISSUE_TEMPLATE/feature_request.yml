@@ -1,0 +1,38 @@
+name: Solicitar capacidad o mejora
+description: Proponer una capacidad nueva o una mejora funcional.
+title: "[FEATURE] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema u oportunidad
+      description: Describe la necesidad, no empieces imponiendo una solución.
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Usuarios y casos de uso
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Restricciones, riesgos y dependencias
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación verificables
+      description: Define cómo se demostrará el resultado sin inventar umbrales.
+    validations:
+      required: true
