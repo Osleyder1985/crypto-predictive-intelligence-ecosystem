@@ -1,7 +1,7 @@
 ## Problema y contexto
 <!-- Describe el problema, necesidad o requisito. Enlaza el Issue. -->
 
-Closes #
+**Issue relacionado:** #N
 
 ## Causa o justificación
 <!-- Explica la causa raíz o por qué se necesita el cambio. -->
