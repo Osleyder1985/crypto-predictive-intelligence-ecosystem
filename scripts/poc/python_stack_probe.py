@@ -11,11 +11,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PACKAGES = [
+    ("psutil", "psutil"),
     ("numpy", "numpy"), ("scipy", "scipy"), ("pandas", "pandas"),
     ("polars", "polars"), ("pyarrow", "pyarrow"),
     ("scikit-learn", "sklearn"), ("statsmodels", "statsmodels"),
     ("xgboost", "xgboost"), ("lightgbm", "lightgbm"),
-    ("pydantic", "pydantic"), ("fastapi", "fastapi"), ("psutil", "psutil"),
+    ("pydantic", "pydantic"), ("fastapi", "fastapi"),
 ]
 
 
