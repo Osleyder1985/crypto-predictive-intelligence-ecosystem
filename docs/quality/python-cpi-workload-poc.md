@@ -22,16 +22,16 @@ Use the already-created isolated Python 3.12 virtual environment with the depend
 From the repository root in PowerShell:
 
 ~~~powershell
-..venv-poc-312ScriptsActivate.ps1
+.\.venv-poc-312\Scripts\Activate.ps1
 python --version
 python .\scripts\poc\python_cpi_workload_probe.py --output .\poc-results\python-cpi-workload-3.12.json
 ~~~
 
-The script rejects Python versions outside 3.12.x and row counts outside the documented range. To repeat with identical input, use the same seed (default `20261110`) and row count.
+The script rejects Python versions outside 3.12.x and row counts outside the documented range. To repeat with identical input, use the same seed (default 20261110) and row count.
 
 ## Report interpretation
 
-- `PASS` means all four model training/inference paths completed, predictions were finite and within [0,1], tabular parity checks passed, and the chronological split assertions passed.
+- \`PASS\` means all four model training/inference paths completed, predictions were finite and within [0,1], tabular parity checks passed, and the chronological split assertions passed.
 - Model accuracy/log-loss are **technical smoke outputs on synthetic data only**. They are not evidence of alpha, BTC predictability, profitability, or model quality.
 - Timings are local observations, not pass/fail thresholds and not comparable across machines without controlled conditions.
 - Peak RSS is sampled every 100 ms and may miss shorter spikes; it is not the OS absolute peak.
