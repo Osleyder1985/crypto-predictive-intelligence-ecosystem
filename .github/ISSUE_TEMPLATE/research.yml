@@ -1,0 +1,45 @@
+name: Investigación o decisión técnica
+description: Registrar investigación, comparación técnica o decisión pendiente.
+title: "[RESEARCH] "
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Pregunta de investigación o decisión
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto, alcance y supuestos
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Método y criterios de comparación
+      description: Explica fuentes, periodo, muestras, criterios y limitaciones.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas evaluadas
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Fuentes y evidencias
+      description: Prioriza fuentes primarias; registra fecha y versión.
+  - type: textarea
+    id: conclusion
+    attributes:
+      label: Conclusión provisional y nivel de confianza
+      description: Distingue hechos, inferencias, hipótesis y cuestiones no resueltas.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación y entregables
+    validations:
+      required: true

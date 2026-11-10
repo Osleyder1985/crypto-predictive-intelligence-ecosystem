@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentación de gobierno y proceso de ingeniería
+    url: https://github.com/Osleyder1985/crypto-predictive-intelligence-ecosystem/blob/main/docs/governance/engineering-workflow.md
+    about: Consulta el flujo de Issues, Pull Requests, decisiones y evidencias antes de abrir un Issue.
