@@ -185,8 +185,8 @@ Los estados siguientes describen únicamente la evidencia accesible en esta revi
 - Repositorio: `Osleyder1985/crypto-predictive-intelligence-ecosystem`.
 - Rama predeterminada: `main`.
 - Issues abiertos observados: 73.
-- Pull Requests abiertos observados: #87, #88, #90 y #91 (4 en total).
-- Los cuatro PR estaban en Draft en la consulta; ninguno tenía revisión aprobatoria ni conversación de revisión en línea registrada.
+- Pull Requests abiertos observados en la actualización del 2026-11-11: #87, #88, #90, #91 y #92 (5 en total).
+- #87, #88, #90 y #91 permanecen en Draft; #92 no está en Draft. Se añadieron revisiones técnicas de tipo COMMENT a #87, #90 y #91; no equivalen a aprobación.
 - PR #87: evaluación documental de herramientas de cadena de suministro.
 - PR #88: reconstrucción de entornos Python mediante uv y lockfiles.
 - PR #90: generación de SBOM CycloneDX.
@@ -196,10 +196,10 @@ Los estados siguientes describen únicamente la evidencia accesible en esta revi
 
 - La arquitectura modular, ADR-0001, ADR-0002, threat model, matriz de compatibilidad, estrategia de pruebas, documentación de operaciones y roadmap están versionados.
 - Existe workflow específico de compatibilidad Python/Windows y se observaron POC cuantitativas ejecutadas.
-- Para el HEAD examinado de PR #88, la ejecución de GitHub Actions #42948922895 mostró cuatro jobs satisfactorios: compatibilidad Python 3.12, compatibilidad Python 3.15 y reconstrucción uv para ambas versiones.
+- Para PR #88, el run #42998870533 terminó con cuatro jobs satisfactorios en HEAD `121c91cd705997345afce4ba12b54e2100445c50` y publicó cuatro artifacts de evidencia. La documentación se actualizó después en HEAD `7b379dce7c320bac0d3cd2ef7cd8546ef0950222`; el run #18 (`42999290951`) para ese HEAD estaba en ejecución en la última consulta.
 - La POC cuantitativa integrada mediante PR #85 valida únicamente el alcance sintético/CPU-only descrito en su evidencia; no valida predicción con mercado real ni selección tecnológica global.
 - El Issue #5 registra que la selección tecnológica permanece parcial/no aprobada como baseline por falta de cierre de licencias transitivas, SBOM, notices, lockfiles integrales e integración representativa.
-- PR #90 contiene resultados locales documentados para CycloneDX, pero esta revisión no verificó independientemente el JSON generado ni su artifact en CI.
+- PR #90 contiene resultados locales documentados para CycloneDX, pero el JSON SBOM continúa sin artifact CI verificable ni retención duradera.
 - PR #91 describe un procedimiento, pero no se encontró evidencia de ejecución real de Syft y comparación de inventarios en el estado revisado.
 
 ### Hallazgos vigentes
@@ -217,11 +217,12 @@ Los estados siguientes describen únicamente la evidencia accesible en esta revi
 
 ### Evaluación específica de PR abiertos
 
-- **#87:** contenido documental útil; debe incorporar enlaces y resultados de las POC posteriores. No se registró CI ni revisión técnica aprobatoria.
-- **#88:** cuatro jobs de CI observados como satisfactorios para el HEAD examinado. Actualizar su descripción para que refleje la ejecución posterior y conservar el alcance limitado de la prueba. No equivale a aprobación de baseline.
-- **#90:** resultados locales documentados; falta artifact verificable de CI, cobertura de Syft y análisis automatizado de vulnerabilidades/licencias.
-- **#91:** procedimiento documentado; ejecución y comparación real pendientes.
-- **Dependencias de ramas:** #90 y #91 se encuentran apilados sobre ramas anteriores. Antes de integrar, verificar/restackear cada rama contra la base actualizada y comprobar que cada diff contenga únicamente los cambios propios. No fusionar mecánicamente ni asumir que squash preserva los SHA de commits dependientes.
+- **#87:** documento actualizado en su rama para incorporar los resultados y límites de #88–#91. Se registró una revisión técnica COMMENT; no se observó CI.
+- **#88:** cuatro jobs satisfactorios y cuatro artifacts para HEAD `121c91cd705997345afce4ba12b54e2100445c50`; documentación posterior actualizada. El run del HEAD documental más reciente seguía pendiente en la última consulta. Artifacts temporales expiran el 2027-02-09; retención durable pendiente.
+- **#90:** resultados locales documentados; falta artifact verificable de CI, cobertura de Syft y análisis automatizado de vulnerabilidades/licencias. Revisión técnica COMMENT publicada.
+- **#91:** procedimiento documentado; ejecución y comparación real pendientes. Revisión técnica COMMENT publicada.
+- **#92:** esta reauditoría fechada está abierta como PR, sin CI reportado para el commit examinado.
+- **Dependencias de ramas:** #90 conserva como base `6ffc5b9e95f742204429e900cb97abdaad154ee0`, tres commits por detrás del HEAD actualizado de #88. #91 conserva como base `6674d3f78801b455c16654084edd91d2691a2dab`, anterior al HEAD actual de #90. Restackear en orden y revisar cada diff antes de integrar; no asumir que squash preserva SHA dependientes.
 
 ### Gobierno, seguridad y normas
 
@@ -234,9 +235,9 @@ Los estados siguientes describen únicamente la evidencia accesible en esta revi
 
 1. Sincronizar esta reauditoría con #71 y el roadmap #70, conservando el historial.
 2. Actualizar descripciones de #86 y #88 con evidencia posterior, sin cerrar Issues por inferencia.
-3. Completar los riesgos/limitaciones pendientes de los Issues de fuentes de datos #11–#21.
-4. Resolver el criterio administrativo de cierre de #83: determinar si el artefacto local ausente es evidencia obligatoria o si la evidencia reproducible versionada basta.
-5. Completar #87–#91 y su cadena de dependencias con CI, artifacts y revisiones verificables.
+3. [x] Completar los riesgos/limitaciones específicos de los Issues #11–#21; los 11 placeholders `undefined` fueron sustituidos por riesgos concretos. Mantener los Issues abiertos hasta cumplir sus criterios de aceptación.
+4. Resolver el criterio administrativo de evidencia de #83: el JSON local `poc-results/python-cpi-workload-3.12-local.json` no está adjunto ni versionado. No cerrar mientras siga pendiente la decisión y preservación de evidencia.
+5. Completar #87–#91 y su cadena de dependencias con CI para HEAD actual, artifacts de SBOM, ejecución Syft, escáneres y revisiones verificables.
 6. Completar #5/#69/#55/#56 con selección tecnológica, trazabilidad y controles automatizados adecuados.
 7. Iniciar la primera vertical funcional de producto según #66 solo cuando sus contratos, dependencias y gates aplicables estén satisfechos.
 
