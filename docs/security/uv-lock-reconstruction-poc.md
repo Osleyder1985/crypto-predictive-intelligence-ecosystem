@@ -3,7 +3,7 @@
 - **Issue:** #86
 - **Scope:** Windows x64, CPython 3.12 and 3.15
 - **uv candidate:** 0.13.7 (pinned for this experiment; not yet an approved CPIE tool)
-- **Status:** local clean reconstruction passed on both target lanes; CI validation is being added; SBOM, vulnerability and license audits remain pending.
+- **Status:** two local clean reconstructions passed on both target lanes; CI run #12 for the current PR head completed successfully; SBOM, vulnerability and license audits remain pending.
 - **Manifest/lock:** `poc/supply-chain/python/pyproject.toml` and committed `uv.lock`.
 
 ## Objective and boundary
@@ -46,36 +46,44 @@ The following results were supplied from the user's Windows 11 x64 machine. The 
 - The universal lock markers cover Windows CPython Python 3.12 and 3.15.
 - PyTorch is locked as `2.15.0+cpu` from `https://download.pytorch.org/whl/cpu`, with a Python <3.13 extra marker.
 
-### Python 3.12.10 — clean sync, PyTorch CPU and workload
+### Python 3.12.10 — independent clean reconstruction, PyTorch CPU and workload
 
-Environment: `%TEMP%\\cpie-uv-312`.
+Environment: `%TEMP%\\cpie-uv-312-clean2`.
 
-- `uv sync --locked` with `--extra pytorch-cpu` and `--group compatibility`: passed; 42 packages installed.
-- Runtime imports: passed for PyTorch, NumPy, pandas, Polars, PyArrow, scikit-learn, XGBoost, LightGBM, SciPy, Statsmodels, FastAPI and Pydantic.
+- `uv sync --locked` with `--extra pytorch-cpu` and `--group compatibility`: passed; 42 packages installed from 43 resolved.
+- Runtime imports: passed for NumPy, pandas, Polars, PyArrow, SciPy, scikit-learn, Statsmodels, XGBoost, LightGBM, psutil and PyTorch.
 - PyTorch: `2.15.0+cpu`; CUDA availability: `False` (expected for this CPU lane).
-- Quantitative workload: `PASS`, 12,000 synthetic rows, four model implementations (scikit-learn logistic regression, XGBoost CPU, LightGBM CPU and PyTorch MLP CPU).
-- Total workload time: 8.360485 seconds.
+- Quantitative workload: `PASS`, 12,000 synthetic rows requested, four model implementations (scikit-learn logistic regression, XGBoost CPU, LightGBM CPU and PyTorch MLP CPU).
+- Total workload time: 28.52173 seconds; model-training/inference stage: 28.338949 seconds.
 - pandas/Polars feature and target parity: true; PyArrow roundtrip shape parity: true.
 - Temporal validation: `PASS`; chronological 80/20 split, one boundary row purged, 5,969 prior feature rows unchanged after future-data mutation, scaler fitted on training partition only.
-- Sampled peak process RSS: 586,649,600 bytes; sampling interval 0.1 seconds. This is sampled RSS, not the OS absolute peak.
-- The JSON report was written to `%TEMP%\\cpie-uv-312-workload.json`; it was not uploaded to the repository.
+- Sampled peak process RSS: 587,526,144 bytes; sampling interval 0.1 seconds. This is sampled RSS, not the OS absolute peak.
+- CPU time: 10.109375 seconds. Available memory before/after: 5,646,655,488 / 5,442,011,136 bytes.
+- JSON report: `%TEMP%\\cpie-uv-312-clean2-workload.json`; SHA-256: `04722CC4D9E203E8C6F26E31FE14F536CF9B5EF14F67588DF8C97CE1B5099226`. The report remains on the user's machine and has not been uploaded.
+- A previous local execution of the same synthetic workload completed in 2.824129 seconds. The clean reconstruction took approximately 10.1 times longer. The new report attributes 28.338949 seconds to model training/inference, but the individual fit/predict timings do not explain that total. This variance is unresolved and must be investigated before drawing performance conclusions.
 
-### Python 3.15.2 — clean sync without PyTorch
+### Python 3.15.2 — independent clean sync without PyTorch
 
-Environment: `%TEMP%\\cpie-uv-315`.
+Environment: `%TEMP%\\cpie-uv-315-clean2`.
 
 - `uv sync --locked` with `--group compatibility`, without the PyTorch extra: passed; 33 packages installed.
-- Runtime imports: passed for NumPy, pandas, Polars, PyArrow, scikit-learn, XGBoost, LightGBM, SciPy, Statsmodels, FastAPI and Pydantic.
+- Runtime imports: passed for NumPy, pandas, Polars, PyArrow, SciPy, scikit-learn, Statsmodels, XGBoost, LightGBM and psutil.
 - Explicit runtime check: `TORCH_INSTALLED: False`.
-- Both lanes used the same committed universal lockfile.
+- Both Python lanes used the same committed universal lockfile.
 
-### Interpretation of the local results
+### CI validation — current PR head
 
-The local evidence supports a successful first clean reconstruction on both specified Windows CPython lanes. It does **not** yet establish a second independent clean reconstruction, automated CI success, production suitability, or cross-platform compatibility.
+- Workflow run [42942746466](https://github.com/Osleyder1985/crypto-predictive-intelligence-ecosystem/actions/runs/42942746466), associated with PR head `9f63a907f15e7a946c9fad8b550d0c1fb0780f9e): completed with conclusion `success`.
+- Python 3.12 compatibility probe: `success`.
+- Python 3.15 compatibility probe: `success`.
+- uv locked reconstruction — Python 3.12: `success`.
+- uv locked reconstruction — Python 3.15: `success`.
 
-The synthetic model scores were close to random (accuracy approximately 0.488–0.514). These results are execution smoke tests only; they provide no evidence of BTC predictability, trading alpha, expected return or profitability.
+### Interpretation and limitations
 
-PowerShell displayed a warning because `VIRTUAL_ENV=.venv-poc-312` remained active while `UV_PROJECT_ENVIRONMENT` pointed to the temporary uv environment. uv explicitly ignored the mismatched active environment and used the requested temporary environment. This did not indicate that the old environment was modified.
+The second independent local reconstruction passed for both specified Windows CPython lanes, and the CI matrix completed successfully for the PR head. This supports reproducibility for the tested Windows x64 CPython 3.12/3.15 configurations only.
+
+The synthetic model scores (accuracy approximately 0.488–0.514) are execution smoke-test outputs only; they provide no evidence of BTC predictability, trading alpha, expected return or profitability. The unexplained workload-time variance remains open. The evidence does not establish production suitability, cross-platform compatibility, or a technology baseline.
 
 ## Reproduce locally
 
@@ -128,9 +136,10 @@ The reconstruction matrix is integrated into the existing default-branch workflo
 - [x] Quantitative synthetic workload passes in the clean 3.12 environment.
 - [x] Python 3.15 clean sync succeeds without PyTorch.
 - [x] Compatibility imports pass in the clean 3.15 environment.
-- [ ] Independent second clean reconstruction from the same lockfile.
-- [ ] CI completes successfully for both lanes.
-- [ ] Record the lockfile SHA-256 and retain reviewed execution evidence.
+- [x] Independent second clean reconstruction from the same lockfile completed for Python 3.12 and 3.15.
+- [x] CI completed successfully for both lanes on PR head `9f63a907f15e7a946c9fad8b550d0c1fb0780f9e` (run `42942746466`).
+- [x] Record the SHA-256 of the reviewed local Python 3.12 workload report; the JSON itself remains local and is not attached.
+- [ ] Investigate and explain the approximately 10.1x workload-time variance between local runs.
 - [ ] Generate and inspect an SBOM (including transitive and native/runtime components).
 - [ ] Run vulnerability/advisory scans and document database timestamps, findings and exceptions.
 - [ ] Run license and copyright analysis over the complete dependency graph and relevant bundled/native components.
