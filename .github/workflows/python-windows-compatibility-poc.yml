@@ -96,12 +96,14 @@ jobs:
           architecture: x64
 
       - name: Set up uv
+        id: setup_uv
         uses: astral-sh/setup-uv@v7
         with:
           version: "0.13.7"
           enable-cache: false
 
       - name: Verify lock consistency
+        id: lock_check
         shell: pwsh
         run: |
           uv --version
@@ -109,6 +111,7 @@ jobs:
           uv lock --check --project ./poc/supply-chain/python
 
       - name: Reconstruct from committed lock
+        id: reconstruct
         shell: pwsh
         run: |
           $syncArgs = @(
@@ -123,12 +126,14 @@ jobs:
           uv @syncArgs
 
       - name: Verify Python 3.12 imports and PyTorch CPU
+        id: runtime_validation
         if: matrix.pytorch-extra
         shell: pwsh
         run: |
           uv run --project ./poc/supply-chain/python --locked --group compatibility --extra pytorch-cpu python -c "import sys, torch, numpy, pandas, polars, pyarrow, sklearn, xgboost, lightgbm, scipy, statsmodels, fastapi, pydantic; assert torch.__version__ == '2.15.0+cpu', torch.__version__; print('PYTHON:', sys.version); print('TORCH:', torch.__version__); print('CUDA:', torch.cuda.is_available()); print('IMPORTS: PASS')"
 
       - name: Run quantitative CPU workload
+        id: quantitative_workload
         if: matrix.pytorch-extra
         shell: pwsh
         run: |
@@ -136,10 +141,48 @@ jobs:
           uv run --project ./poc/supply-chain/python --locked --group compatibility --extra pytorch-cpu python scripts/poc/python_cpi_workload_probe.py --output poc-results/python-cpi-workload-3.12-uv-lock.json
 
       - name: Verify Python 3.15 imports and PyTorch exclusion
+        id: runtime_validation
         if: matrix.python-version == '3.15'
         shell: pwsh
         run: |
           uv run --project ./poc/supply-chain/python --locked --group compatibility python -c "import importlib.util, sys, numpy, pandas, polars, pyarrow, sklearn, xgboost, lightgbm, scipy, statsmodels, fastapi, pydantic; assert importlib.util.find_spec('torch') is None, 'PyTorch must not be installed in the 3.15 lane'; print('PYTHON:', sys.version); print('NUMPY:', numpy.__version__); print('TORCH_INSTALLED: False'); print('IMPORTS: PASS')"
+
+      - name: Write uv reconstruction evidence
+        if: always()
+        shell: pwsh
+        env:
+          JOB_STATUS: ${{ job.status }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
+          LOCK_CHECK_OUTCOME: ${{ steps.lock_check.outcome }}
+          RECONSTRUCTION_OUTCOME: ${{ steps.reconstruct.outcome }}
+          RUNTIME_VALIDATION_OUTCOME: ${{ steps.runtime_validation.outcome }}
+          QUANTITATIVE_WORKLOAD_OUTCOME: ${{ steps.quantitative_workload.outcome }}
+        run: |
+          New-Item -ItemType Directory -Force -Path poc-results | Out-Null
+          $uvVersion = "unavailable"
+          if (Get-Command uv -ErrorAction SilentlyContinue) {
+            $uvVersion = (& uv --version 2>&1 | Out-String).Trim()
+          }
+          $pythonVersion = "unavailable"
+          if (Get-Command python -ErrorAction SilentlyContinue) {
+            $pythonVersion = (& python --version 2>&1 | Out-String).Trim()
+          }
+          $evidence = [ordered]@{
+            schema_version = "1.0"
+            workflow = "python-windows-compatibility-poc"
+            commit_sha = $env:GITHUB_SHA
+            job_status = $env:JOB_STATUS
+            python_matrix_version = $env:PYTHON_VERSION
+            python_runtime = $pythonVersion
+            uv_version = $uvVersion
+            lock_check = $env:LOCK_CHECK_OUTCOME
+            locked_reconstruction = $env:RECONSTRUCTION_OUTCOME
+            runtime_validation = $env:RUNTIME_VALIDATION_OUTCOME
+            quantitative_workload = $env:QUANTITATIVE_WORKLOAD_OUTCOME
+          }
+          $json = $evidence | ConvertTo-Json -Depth 5
+          $path = Join-Path "poc-results" "uv-lock-reconstruction-python-$($env:PYTHON_VERSION).json"
+          [System.IO.File]::WriteAllText($path, $json, [System.Text.UTF8Encoding]::new($false))
 
       - name: Upload uv reconstruction evidence
         if: always()
