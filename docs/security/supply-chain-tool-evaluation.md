@@ -2,7 +2,7 @@
 
 - **Issue:** [#86 — Dependencias reproducibles, SBOM y auditoría](../../issues/86)
 - **Estado:** Evaluación documental; ninguna herramienta aprobada ni ejecutada localmente.
-- **Fecha de corte:** 2026-11-10
+- **Fecha de corte:** 2026-11-11
 - **Ámbito inicial:** Python 3.12.10 y 3.15.2 en Windows 11 x64; Node.js y contenedores se incorporarán cuando entren en sus POCs.
 
 ## 1. Resumen ejecutivo
@@ -165,16 +165,28 @@ La tabla describe responsabilidades, no una puntuación de calidad. La puntuaci�
 
 Una herramienta se recomienda solo si mantiene releases/documentación, funciona en Windows 11 x64 y runners CI, tiene licencia compatible, permite automatización no interactiva y salida auditable, cubre el ecosistema real, tiene coste/consumo proporcionados, y sus limitaciones/falsos negativos son entendibles. No asignar puntuaciones hasta ejecutar comparación reproducible.
 
-## 9. Decisión provisional
+## 9. Estado provisional tras las POCs — 2026-11-11
 
-- **uv:** candidato prioritario para POC de lockfiles Python.
-- **CycloneDX Python:** candidato prioritario para SBOM del entorno Python instalado.
-- **Syft:** candidato complementario para inventario transversal y futuros artefactos/containers.
-- **pip-audit:** candidato prioritario para avisos conocidos de paquetes Python.
-- **Grype y OSV-Scanner:** alternativas/complementos a comparar; no adoptar ambos automáticamente.
-- **ScanCode:** candidato para inspección de archivos de licencia y copyright.
+La evaluación documental se complementa con las siguientes evidencias separadas. Ninguna de ellas constituye aprobación de baseline para producción:
 
-**No hay herramienta aprobada, lockfile creado, SBOM generado ni escaneo ejecutado en CPIE en esta fase.**
+| Capa | Evidencia actual | Estado y límite |
+|---|---|---|
+| Lockfile Python | [PR #88 — uv universal lock reconstruction](../../pull/88) | `uv.lock` versionado; reconstrucción limpia Windows x64 CPython 3.12/3.15 y workload sintético 3.12 documentados. CI anterior del HEAD completada con éxito. POC experimental, no baseline global. |
+| SBOM Python | [PR #90 — CycloneDX SBOM](../../pull/90) | CycloneDX 1.6 generado y validado localmente desde el entorno instalado; dos salidas idénticas por SHA-256. JSON aún sin artifact controlado de CI. Cobertura de paquetes Python, no inventario completo del sistema operativo o notices nativos. |
+| SBOM transversal | [PR #91 — Syft comparison](../../pull/91) | Procedimiento diseñado; descarga, verificación Sigstore, ejecución y comparación permanecen pendientes. |
+| Vulnerabilidades Python | pip-audit | Versión candidata identificada; ejecución y triage pendientes. |
+| Vulnerabilidades de artefactos | Grype / OSV-Scanner | Comparación de cobertura y ejecución pendientes. |
+| Licencias y notices | ScanCode + revisión manual | Versión/ejecución pendientes. La revisión puntual de licencias de PR #90 no equivale a un inventario completo de notices. |
+
+### Decisión provisional
+
+- **uv:** candidato respaldado por la POC de reconstrucción, pendiente de evaluación de seguridad, licencias, alcance multiplataforma y decisión de baseline.
+- **CycloneDX Python:** candidato respaldado por generación local reproducible; falta retención controlada del SBOM y comparación de cobertura.
+- **Syft:** candidato complementario; no recomendar hasta ejecutar la POC y estudiar discrepancias.
+- **pip-audit, Grype y OSV-Scanner:** no seleccionar por nombre o popularidad; comparar avisos, cobertura, falsos negativos, fuentes y mantenimiento con versiones fijadas.
+- **ScanCode:** candidato para análisis de archivos LICENSE/NOTICE; todavía no ejecutado.
+
+**Estado global:** existe un lockfile experimental y una generación SBOM local reproducible, pero no existe una Validated Baseline aprobada, un inventario integral de componentes, un escaneo de vulnerabilidades completado ni clearance legal.
 
 ## 10. Referencias normativas y técnicas
 
@@ -195,11 +207,13 @@ Una herramienta se recomienda solo si mantiene releases/documentación, funciona
 - [x] Revisión documental inicial de capacidades y limitaciones.
 - [x] Separación de responsabilidades entre lockfile, SBOM, vulnerabilidades y licencias.
 - [x] Candidatos para POC identificados.
-- [x] Verificar el límite de CycloneDX Python: no parsea directamente `uv.lock`; el SBOM debe generarse desde cada entorno sincronizado y validado.
-- [x] Confirmar snapshot de CycloneDX Python 7.6.0 y fecha de release oficial 2026-10-28.
-- [ ] Verificar soporte real de CycloneDX Python 7.6.0 en los intérpretes Windows 3.12 y 3.15, además de licencias exactas en la fecha de POC.
-- [ ] Ejecutar POC limpia en Windows 11 y CI.
-- [ ] Generar y validar lockfiles por lane según evidencia.
-- [ ] Generar SBOM y comparar cobertura.
-- [ ] Ejecutar escaneos y triage de hallazgos.
+- [x] Límite CycloneDX Python/uv documentado: el SBOM se genera desde el entorno instalado, no desde una lectura directa de `uv.lock`.
+- [x] Snapshot de versiones candidatas y fecha de release CycloneDX Python 7.6.0 documentados.
+- [x] POC de lockfile universal y reconstrucción Windows CPython 3.12/3.15 documentada en PR #88.
+- [x] Generación local CycloneDX 1.6 reproducible y revisión estructural/licencias inicial documentadas en PR #90.
+- [ ] Retener el SBOM CycloneDX como artifact controlado vinculado a commit y ejecución.
+- [ ] Verificar/ejecutar Syft y comparar inventarios por PURL/coordenadas en PR #91.
+- [ ] Verificar compatibilidad del generador CycloneDX en Python 3.15 si se requiere esa lane.
+- [ ] Ejecutar pip-audit, comparar Grype/OSV-Scanner y hacer triage de advisories.
+- [ ] Ejecutar ScanCode y completar revisión de LICENSE/NOTICE, bibliotecas nativas y avisos embebidos.
 - [ ] Aprobar herramientas y documentar decisión en ADR-0002/Issue #5.
