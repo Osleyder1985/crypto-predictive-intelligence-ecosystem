@@ -39,9 +39,17 @@ Fuentes: https://docs.astral.sh/uv/concepts/projects/lock/ ; https://docs.astral
 
 ### 2.2 CycloneDX Python — SBOM del entorno Python
 
-Genera SBOM CycloneDX desde entornos Python virtuales, requirements y ciertos manifiestos/lockfiles. La documentación indica que analizar el entorno realmente instalado produce un inventario más preciso e incluye metadatos, licencias y grafo de dependencias; permite validar la salida.
+Genera SBOM CycloneDX desde entornos Python virtuales, requirements y ciertos manifiestos/lockfiles. La documentación oficial actual aclara que **uv no está soportado como fuente directa de manifest/lockfile**. Para CPIE, la vía comprobable es sincronizar primero el entorno con `uv sync --locked` y generar el SBOM inspeccionando el intérprete/entorno realmente instalado. El proyecto indica que el análisis del entorno instalado es la opción más precisa y puede incluir metadatos, licencias y grafo de dependencias; permite validar la salida. No debe afirmarse que el SBOM fue generado directamente desde `uv.lock`.
 
-**Pruebas necesarias:** generar un SBOM después de sincronizar desde lockfile; validar formato y grafo; revisar licencias ausentes/ambiguas; fijar versión del generador; comparar cobertura con Syft. El campo de licencia no equivale a una conclusión jurídica.
+**Pruebas necesarias:** generar un SBOM después de sincronizar desde lockfile, apuntando al ejecutable Python de cada entorno; validar formato y grafo; revisar licencias ausentes/ambiguas; fijar versión del generador; comparar cobertura con Syft. La opción de salida reproducible debe evaluarse y el artefacto debe llevar hash y metadatos de ejecución. El campo de licencia no equivale a una conclusión jurídica.
+
+Comando de referencia a validar en la POC (la sintaxis exacta debe confirmarse con `--help` de la versión fijada):
+
+```powershell
+cyclonedx-py environment --output-reproducible --validate --spec-version 1.6 --output-format JSON --output-file .\\poc-results\\python-312.cdx.json <path-to-locked-env-python.exe>
+```
+
+El comando usa el entorno instalado como fuente; no interpreta directamente `uv.lock`.
 
 Fuentes: https://github.com/CycloneDX/cyclonedx-python ; https://github.com/CycloneDX/cyclonedx-python/blob/main/docs/usage.rst
 
@@ -78,7 +86,7 @@ Este snapshot registra versiones publicadas observadas en los repositorios ofici
 
 | Herramienta | Versión candidata observada | Uso en la POC | Estado |
 |---|---:|---|---|
-| CycloneDX Python (`cyclonedx-bom`) | 7.6.0 | SBOM CycloneDX del entorno Python instalado | Candidata; ejecutar y validar |
+| CycloneDX Python (`cyclonedx-bom`) | 7.6.0 (release 2026-10-28) | SBOM CycloneDX del entorno Python instalado | Candidata; ejecutar y validar en Python 3.12/3.15 |
 | Syft | 1.57.1 | SBOM transversal y comparación de cobertura | Candidata; ejecutar y comparar |
 | pip-audit | 2.10.1 | Auditoría de advisories Python | Candidata; ejecutar y revisar |
 | Grype | No fijada | Escaneo opcional del SBOM | Pendiente de comparar |
@@ -90,7 +98,7 @@ Fuentes oficiales de versiones:
 - Syft: https://github.com/anchore/syft/releases
 - pip-audit: https://github.com/pypa/pip-audit/releases
 
-Las versiones de herramientas de seguridad también deben fijarse por versión y, cuando sea posible, hash/procedencia. Registrar fecha de ejecución y fecha/identificador de la base de advisories. Una versión "latest" consultada hoy no debe resolverse dinámicamente en CI: la POC debe probar versiones fijadas y renovarlas mediante revisión explícita.
+El release oficial de CycloneDX Python 7.6.0 está fechado el 2026-10-28. Su CLI soporta generar SBOM desde el entorno instalado; la documentación dice explícitamente que uv manifest/lock no tiene soporte nativo directo. Las versiones de herramientas de seguridad también deben fijarse por versión y, cuando sea posible, hash/procedencia. Registrar fecha de ejecución y fecha/identificador de la base de advisories. Una versión "latest" consultada hoy no debe resolverse dinámicamente en CI: la POC debe probar versiones fijadas y renovarlas mediante revisión explícita.
 
 ## 3. Flujo objetivo
 
@@ -187,7 +195,9 @@ Una herramienta se recomienda solo si mantiene releases/documentación, funciona
 - [x] Revisión documental inicial de capacidades y limitaciones.
 - [x] Separación de responsabilidades entre lockfile, SBOM, vulnerabilidades y licencias.
 - [x] Candidatos para POC identificados.
-- [ ] Verificar releases estables, soporte y licencias exactas en la fecha de POC.
+- [x] Verificar el límite de CycloneDX Python: no parsea directamente `uv.lock`; el SBOM debe generarse desde cada entorno sincronizado y validado.
+- [x] Confirmar snapshot de CycloneDX Python 7.6.0 y fecha de release oficial 2026-10-28.
+- [ ] Verificar soporte real de CycloneDX Python 7.6.0 en los intérpretes Windows 3.12 y 3.15, además de licencias exactas en la fecha de POC.
 - [ ] Ejecutar POC limpia en Windows 11 y CI.
 - [ ] Generar y validar lockfiles por lane según evidencia.
 - [ ] Generar SBOM y comparar cobertura.
