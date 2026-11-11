@@ -218,7 +218,7 @@ Los estados siguientes describen únicamente la evidencia accesible en esta revi
 ### Evaluación específica de PR abiertos
 
 - **#87:** documento actualizado en su rama para incorporar los resultados y límites de #88–#91. Se registró una revisión técnica COMMENT; no se observó CI.
-- **#88:** cuatro jobs satisfactorios y cuatro artifacts para HEAD `121c91cd705997345afce4ba12b54e2100445c50`; documentación posterior actualizada. El run del HEAD documental más reciente seguía pendiente en la última consulta. Artifacts temporales expiran el 2027-02-09; retención durable pendiente.
+- **#88:** cuatro jobs satisfactorios y cuatro artifacts para HEAD `121c91cd705997345afce4ba12b54e2100445c50`; documentación posterior actualizada. El run #42999290951 del HEAD documental `7b379dce7c320bac0d3cd2ef7cd8546ef0950222` terminó con cuatro jobs correctos y cuatro artifacts. Artifacts temporales expiran el 2027-02-09; retención durable pendiente.
 - **#90:** resultados locales documentados; falta artifact verificable de CI, cobertura de Syft y análisis automatizado de vulnerabilidades/licencias. Revisión técnica COMMENT publicada.
 - **#91:** procedimiento documentado; ejecución y comparación real pendientes. Revisión técnica COMMENT publicada.
 - **#92:** esta reauditoría fechada está abierta como PR, sin CI reportado para el commit examinado.
