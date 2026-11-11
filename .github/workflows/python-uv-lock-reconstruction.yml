@@ -1,0 +1,97 @@
+name: Python uv lock reconstruction
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/python-uv-lock-reconstruction.yml"
+      - "poc/supply-chain/python/pyproject.toml"
+      - "poc/supply-chain/python/uv.lock"
+      - "scripts/poc/python_cpi_workload_probe.py"
+      - "docs/security/uv-lock-reconstruction-poc.md"
+
+permissions:
+  contents: read
+
+jobs:
+  clean-reconstruction:
+    name: Windows CPython ${{ matrix.python-version }} locked reconstruction
+    runs-on: windows-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.12"
+            pytorch-extra: true
+          - python-version: "3.15"
+            pytorch-extra: false
+
+    env:
+      UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}\\cpie-uv-${{ matrix.python-version }}
+      UV_NO_PROGRESS: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.13.7"
+          enable-cache: false
+
+      - name: Verify toolchain and lock consistency
+        shell: pwsh
+        run: |
+          uv --version
+          python --version
+          uv lock --check --project ./poc/supply-chain/python
+
+      - name: Reconstruct clean environment from committed lock
+        shell: pwsh
+        run: |
+          $syncArgs = @(
+            "sync",
+            "--locked",
+            "--project", "poc/supply-chain/python",
+            "--python", "${{ matrix.python-version }}",
+            "--group", "compatibility"
+          )
+          if ("${{ matrix.pytorch-extra }}" -eq "true") {
+            $syncArgs += @("--extra", "pytorch-cpu")
+          }
+          uv @syncArgs
+
+      - name: Verify Python 3.12 imports and PyTorch CPU
+        if: matrix.pytorch-extra
+        shell: pwsh
+        run: |
+          uv run --project ./poc/supply-chain/python --locked --group compatibility --extra pytorch-cpu python -c "import sys, torch, numpy, pandas, polars, pyarrow, sklearn, xgboost, lightgbm, scipy, statsmodels, fastapi, pydantic; assert torch.__version__ == '2.15.0+cpu', torch.__version__; print('PYTHON:', sys.version); print('TORCH:', torch.__version__); print('CUDA:', torch.cuda.is_available()); print('IMPORTS: PASS')"
+
+      - name: Run quantitative CPU workload
+        if: matrix.pytorch-extra
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path poc-results | Out-Null
+          uv run --project ./poc/supply-chain/python --locked --group compatibility --extra pytorch-cpu python scripts/poc/python_cpi_workload_probe.py --output poc-results/python-cpi-workload-3.12-uv-lock.json
+
+      - name: Verify Python 3.15 imports and PyTorch exclusion
+        if: matrix.python-version == '3.15'
+        shell: pwsh
+        run: |
+          uv run --project ./poc/supply-chain/python --locked --group compatibility python -c "import importlib.util, sys, numpy, pandas, polars, pyarrow, sklearn, xgboost, lightgbm, scipy, statsmodels, fastapi, pydantic; assert importlib.util.find_spec('torch') is None, 'PyTorch must not be installed in the 3.15 lane'; print('PYTHON:', sys.version); print('NUMPY:', numpy.__version__); print('TORCH_INSTALLED: False'); print('IMPORTS: PASS')"
+
+      - name: Upload reconstruction evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: uv-lock-windows-python-${{ matrix.python-version }}
+          path: poc-results/*.json
+          if-no-files-found: ignore
