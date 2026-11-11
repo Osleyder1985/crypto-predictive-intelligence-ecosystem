@@ -111,6 +111,9 @@ Never use `git clean`, broad wildcard deletion or removal of the pre-existing vi
 
 Workflow: `.github/workflows/python-uv-lock-reconstruction.yml`.
 
+**Bootstrap constraint:** GitHub documents that a `pull_request` workflow runs only when its workflow file already exists on the default branch. This workflow is being introduced by PR #88 itself, so its absence from the run list is expected before that workflow is established on `main`; it is not evidence that the YAML failed or that Actions is disabled. The workflow file must first be integrated through the repository's normal review process. After it exists on `main`, update/synchronize this PR (or dispatch the workflow manually) to obtain CI evidence for the candidate branch. Do not treat this PR's local results as a substitute.
+
+
 - Triggered by pull requests changing this workflow, the POC manifest/lock, the workload script or this document; also supports manual dispatch.
 - Uses Windows runners, CPython 3.12 and 3.15, and pinned uv 0.13.7.
 - Runs `uv lock --check` and `uv sync --locked` in isolated runner-temp environments.
