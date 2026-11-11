@@ -13,7 +13,6 @@ on:
       - "poc/supply-chain/python/uv.lock"
       - "docs/security/uv-lock-reconstruction-poc.md"
       - "docs/security/supply-chain-tool-evaluation.md"
-      - ".github/workflows/python-uv-lock-reconstruction.yml"
 
 permissions:
   contents: read
