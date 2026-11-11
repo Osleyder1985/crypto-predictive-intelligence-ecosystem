@@ -168,3 +168,84 @@ El Issue #70 solo podrá cerrarse cuando:
 - Ninguna fase se declare completada sin PR integrado y evidencia.
 
 El cierre de #70 no equivale a completar todas las fases de remediación.
+
+
+---
+
+## 10. Reauditoría de estado — 2026-11-11
+
+### Alcance y criterio de evidencia
+
+Esta actualización complementa, no reemplaza, las auditorías históricas de los Issues #67 y #71. Se consultaron nuevamente los Issues abiertos, los Pull Requests abiertos, los documentos de gobierno y arquitectura, los cambios de los PR #87–#91 y los checks disponibles para los commits examinados.
+
+Los estados siguientes describen únicamente la evidencia accesible en esta revisión. La presencia de un documento o una POC no equivale a implementación del producto, aprobación de arquitectura, conformidad normativa ni preparación para producción.
+
+### Fotografía del repositorio
+
+- Repositorio: `Osleyder1985/crypto-predictive-intelligence-ecosystem`.
+- Rama predeterminada: `main`.
+- Issues abiertos observados: 73.
+- Pull Requests abiertos observados: #87, #88, #90 y #91 (4 en total).
+- Los cuatro PR estaban en Draft en la consulta; ninguno tenía revisión aprobatoria ni conversación de revisión en línea registrada.
+- PR #87: evaluación documental de herramientas de cadena de suministro.
+- PR #88: reconstrucción de entornos Python mediante uv y lockfiles.
+- PR #90: generación de SBOM CycloneDX.
+- PR #91: procedimiento de comparación Syft/CycloneDX.
+
+### Evidencia técnica observada
+
+- La arquitectura modular, ADR-0001, ADR-0002, threat model, matriz de compatibilidad, estrategia de pruebas, documentación de operaciones y roadmap están versionados.
+- Existe workflow específico de compatibilidad Python/Windows y se observaron POC cuantitativas ejecutadas.
+- Para el HEAD examinado de PR #88, la ejecución de GitHub Actions #42948922895 mostró cuatro jobs satisfactorios: compatibilidad Python 3.12, compatibilidad Python 3.15 y reconstrucción uv para ambas versiones.
+- La POC cuantitativa integrada mediante PR #85 valida únicamente el alcance sintético/CPU-only descrito en su evidencia; no valida predicción con mercado real ni selección tecnológica global.
+- El Issue #5 registra que la selección tecnológica permanece parcial/no aprobada como baseline por falta de cierre de licencias transitivas, SBOM, notices, lockfiles integrales e integración representativa.
+- PR #90 contiene resultados locales documentados para CycloneDX, pero esta revisión no verificó independientemente el JSON generado ni su artifact en CI.
+- PR #91 describe un procedimiento, pero no se encontró evidencia de ejecución real de Syft y comparación de inventarios en el estado revisado.
+
+### Hallazgos vigentes
+
+| ID | Hallazgo | Severidad | Tratamiento |
+|---|---|---|---|
+| RA-01 | README de raíz insuficiente para orientar instalación, arquitectura, estado y contribución. | Media | Reutilizar #1/#6; corregir mediante PR. |
+| RA-02 | No se ha demostrado una aplicación CPIE funcional integrada para web, Android e iOS. | Crítica | Reutilizar #66 y los Issues de producto/backend. |
+| RA-03 | La CI existente es específica de POC; no demuestra aún una estrategia general de calidad para todos los componentes. | Alta | Reutilizar #55/#56 y definir gates solo sobre checks existentes. |
+| RA-04 | ADR-0002 y selección tecnológica siguen sin baseline global aprobada. | Alta | Continuar #5 con evidencia de licencias, dependencias e integración. |
+| RA-05 | Cobertura completa de SBOM, licencias, notices y vulnerabilidades aún no demostrada. | Alta | Continuar #86 y PR #87–#91 sin duplicar trabajo. |
+| RA-06 | Algunas descripciones de Issues/auditorías conservan estados históricos que ya no describen la situación posterior a PR #85 y #87–#91. | Alta | Añadir reauditorías fechadas; no sobrescribir ni borrar evidencia histórica. |
+| RA-07 | La trazabilidad requisito–control–prueba–evidencia aún no está demostrada de extremo a extremo. | Alta | Reutilizar #69 y #55. |
+| RA-08 | No se ha demostrado despliegue, restauración, rollback ni operación de una plataforma funcional. | Alta | Reutilizar #53/#54/#56 y gates de Fase 3/9. |
+
+### Evaluación específica de PR abiertos
+
+- **#87:** contenido documental útil; debe incorporar enlaces y resultados de las POC posteriores. No se registró CI ni revisión técnica aprobatoria.
+- **#88:** cuatro jobs de CI observados como satisfactorios para el HEAD examinado. Actualizar su descripción para que refleje la ejecución posterior y conservar el alcance limitado de la prueba. No equivale a aprobación de baseline.
+- **#90:** resultados locales documentados; falta artifact verificable de CI, cobertura de Syft y análisis automatizado de vulnerabilidades/licencias.
+- **#91:** procedimiento documentado; ejecución y comparación real pendientes.
+- **Dependencias de ramas:** #90 y #91 se encuentran apilados sobre ramas anteriores. Antes de integrar, verificar/restackear cada rama contra la base actualizada y comprobar que cada diff contenga únicamente los cambios propios. No fusionar mecánicamente ni asumir que squash preserva los SHA de commits dependientes.
+
+### Gobierno, seguridad y normas
+
+- El Issue #68 contiene evidencia histórica de ruleset `protect-main` activo y de PR obligatorio. Esta reauditoría no repitió una verificación administrativa completa de todos los controles de GitHub; por tanto, no certifica el estado actual de cada ajuste de protección.
+- Los estados de Dependency Graph, Dependabot, Secret Scanning, Push Protection y Code Scanning deben mantenerse como no verificados cuando no exista evidencia administrativa directa.
+- La matriz #69 debe registrar edición vigente, fuente oficial, aplicabilidad, control, responsable y evidencia. No declarar conformidad ISO ni certificación por adopción documental.
+- El programa mantiene bloqueado el trading LIVE hasta superar los gates aplicables y obtener autorización explícita e independiente.
+
+### Orden de remediación actualizado
+
+1. Sincronizar esta reauditoría con #71 y el roadmap #70, conservando el historial.
+2. Actualizar descripciones de #86 y #88 con evidencia posterior, sin cerrar Issues por inferencia.
+3. Completar los riesgos/limitaciones pendientes de los Issues de fuentes de datos #11–#21.
+4. Resolver el criterio administrativo de cierre de #83: determinar si el artefacto local ausente es evidencia obligatoria o si la evidencia reproducible versionada basta.
+5. Completar #87–#91 y su cadena de dependencias con CI, artifacts y revisiones verificables.
+6. Completar #5/#69/#55/#56 con selección tecnológica, trazabilidad y controles automatizados adecuados.
+7. Iniciar la primera vertical funcional de producto según #66 solo cuando sus contratos, dependencias y gates aplicables estén satisfechos.
+
+### Veredicto
+
+**Estado global: FUNDACIÓN DOCUMENTAL AVANZADA / POC PARCIALES DEMOSTRADAS / PRODUCTO FUNCIONAL NO DEMOSTRADO / NO APTO PARA PRODUCCIÓN.**
+
+No se asigna una puntuación global numérica: todavía no existe evidencia de producto integrado suficiente para calcular una calificación defendible. La auditoría no autoriza cierres, merges, habilitación de trading LIVE ni declaraciones de conformidad.
+
+### Límites de esta reauditoría
+
+Esta revisión es una auditoría documental y de evidencia accesible desde GitHub. No ejecutó el repositorio completo en un entorno limpio, no realizó pentest, no escaneó todos los artefactos binarios, no verificó todos los ajustes administrativos de GitHub y no probó aplicaciones o despliegues. Esos trabajos siguen pendientes y deben registrarse como tales.
