@@ -3,7 +3,7 @@
 - **Issue:** #86
 - **Scope:** Windows x64, CPython 3.12 and 3.15
 - **uv candidate:** 0.13.7 (pinned for this experiment; not yet an approved CPIE tool)
-- **Status:** two local clean reconstructions passed on both target lanes; three consecutive Python 3.12 workload repetitions were stable (2.006837–2.028404 s); CI run #13 for the current PR head completed successfully; SBOM, vulnerability and license audits remain pending.
+- **Status:** two local clean reconstructions passed on both target lanes; three consecutive Python 3.12 workload repetitions were stable (2.006837–2.028404 s); CI run #17 for HEAD `121c91cd705997345afce4ba12b54e2100445c50` completed successfully with four jobs and four evidence artifacts; SBOM, vulnerability and license audits remain pending.
 - **Manifest/lock:** `poc/supply-chain/python/pyproject.toml` and committed `uv.lock`.
 
 ## Objective and boundary
@@ -75,7 +75,9 @@ Environment: `%TEMP%\\cpie-uv-315-clean2`.
 
 ### CI validation — current PR head
 
-- Workflow run [42947694758](https://github.com/Osleyder1985/crypto-predictive-intelligence-ecosystem/actions/runs/42947694758), run #13, associated with current PR head `4cea31d0664c3ed1314d71024638c8818bc033ac`: completed with conclusion `success`.
+- Workflow run [42998870533](https://github.com/Osleyder1985/crypto-predictive-intelligence-ecosystem/actions/runs/42998870533), run #17, associated with PR HEAD `121c91cd705997345afce4ba12b54e2100445c50`: completed with conclusion `success`.
+- Four jobs completed successfully: Python 3.12 compatibility probe, Python 3.15 compatibility probe, uv locked reconstruction Python 3.12, and uv locked reconstruction Python 3.15.
+- Four artifacts were created: `python-stack-3.12-windows`, `python-stack-3.15-windows`, `uv-lock-windows-python-3.12`, and `uv-lock-windows-python-3.15`. The two uv artifacts include machine-readable lane evidence. The artifacts are temporary and currently expire on 2027-02-09; this does not satisfy long-term evidence-retention policy by itself.
 - Python 3.12 compatibility probe: `success`.
 - Python 3.15 compatibility probe: `success`.
 - uv locked reconstruction — Python 3.12: `success`.
@@ -83,7 +85,7 @@ Environment: `%TEMP%\\cpie-uv-315-clean2`.
 
 ### Interpretation and limitations
 
-Independent clean local reconstructions passed for both specified Windows CPython lanes, and CI run #13 completed successfully for the current PR head. Three consecutive unprofiled Python 3.12 workload repetitions clustered tightly around 2.02 seconds. The earlier 28.52-second result remains an unexplained outlier, not a reproducible performance characteristic. This evidence supports repeatability only for the tested Windows x64 CPython 3.12/3.15 configurations.
+Independent clean local reconstructions passed for both specified Windows CPython lanes, and CI run #17 completed successfully for HEAD `121c91cd705997345afce4ba12b54e2100445c50`, publishing machine-readable evidence for both locked reconstruction lanes. Three consecutive unprofiled Python 3.12 workload repetitions clustered tightly around 2.02 seconds. The earlier 28.52-second result remains an unexplained outlier, not a reproducible performance characteristic. This evidence supports repeatability only for the tested Windows x64 CPython 3.12/3.15 configurations.
 
 The stage timer includes scaling, initialization and metric evaluation beyond the nested model fit/predict timers; this explains why those nested timings do not sum to the full model stage. The current instrumentation is adequate for this bounded POC but is not a fine-grained performance profiler.
 
@@ -128,9 +130,9 @@ The reconstruction matrix is integrated into the existing default-branch workflo
 - Both lanes pin uv 0.13.7, run `uv lock --check`, then `uv sync --locked`.
 - Python 3.12 installs the PyTorch CPU extra, checks imports and runs the quantitative workload.
 - Python 3.15 checks compatibility imports and asserts that PyTorch is absent.
-- The 3.12 lane uploads the workload JSON as a CI artifact.
+- Each locked reconstruction lane writes a machine-readable evidence JSON with commit SHA, runtime/tool versions and step outcomes; both lane artifacts are uploaded. The Python 3.12 compatibility lane also uploads its workload report.
 
-CI run #13 for the current PR head completed successfully. Future changes to this PR must be validated against their own HEAD; a successful earlier run is not evidence for a later commit.
+CI run #17 completed successfully for HEAD `121c91cd705997345afce4ba12b54e2100445c50`. Future changes to this PR must be validated against their own HEAD; a successful earlier run is not evidence for a later commit.
 
 ## Remaining supply-chain acceptance work
 
@@ -141,7 +143,9 @@ CI run #13 for the current PR head completed successfully. Future changes to thi
 - [x] Python 3.15 clean sync succeeds without PyTorch.
 - [x] Compatibility imports pass in the clean 3.15 environment.
 - [x] Independent second clean reconstruction from the same lockfile completed for Python 3.12 and 3.15.
-- [x] CI completed successfully for both lanes on current PR head `4cea31d0664c3ed1314d71024638c8818bc033ac` (run `42947694758`).
+- [x] CI run `42998870533` completed successfully on HEAD `121c91cd705997345afce4ba12b54e2100445c50`; all four jobs passed.
+- [x] Machine-readable CI artifacts published for both uv reconstruction lanes and both compatibility lanes.
+- [ ] Move required evidence to durable, policy-controlled retention before temporary GitHub Actions artifacts expire (currently 2027-02-09).
 - [x] Record the SHA-256 of the initial local Python 3.12 workload report; the JSON itself remains local and is not attached.
 - [x] Repeat the workload three times without profiling; all passed with a 1.07% max-min spread relative to the mean.
 - [x] Clarify nested timing scopes: model-stage duration includes scaling, initialization and metric evaluation not included in per-model fit/predict timers.
