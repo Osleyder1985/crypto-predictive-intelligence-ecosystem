@@ -65,10 +65,8 @@ $versionMatch = [regex]::Match($cosignVersion, "(?m)\b(?:v)?(\d+)\.(\d+)\.(\d+)\
 if (-not $versionMatch) {
     throw "Could not determine Cosign version"
 }
-$cosignMajor = [int]$versionMatch.Groups[1].Value
-$cosignMinor = [int]$versionMatch.Groups[2].Value
-$cosignPatch = [int]$versionMatch.Groups[3].Value
-if (($cosignMajor, $cosignMinor, $cosignPatch) -lt (2, 5, 0)) {
+$cosignDetected = [version]::Parse("$($versionMatch.Groups[1].Value).$($versionMatch.Groups[2].Value).$($versionMatch.Groups[3].Value)")
+if ($cosignDetected -lt [version]"2.5.0") {
     throw "Cosign >= 2.5.0 is required for Sigstore bundle verification"
 }
 
