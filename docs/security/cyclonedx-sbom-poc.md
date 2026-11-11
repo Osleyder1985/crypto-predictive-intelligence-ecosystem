@@ -76,6 +76,22 @@ The maintainer's PowerShell inspection confirmed:
 
 This is only a structural inventory check. A non-empty declared license field does not establish license correctness, compatibility, completeness, or legal clearance. Exact SPDX identifiers/expressions and dependency-edge coverage still require inspection. The maintainer's first license report grouped 15 components as MIT, 12 as BSD-3-Clause, 4 as Apache-2.0, and the remaining 11 across BSD-2-Clause, PSF-2.0, composite SPDX expressions and legacy license-classifier text. Five components (Jinja2, mpmath, patsy, SciPy and SymPy) expose the legacy text `License :: OSI Approved :: BSD License`; this is not a precise SPDX identifier and must not be silently normalized to a specific BSD variant. NumPy and PyTorch expose composite SPDX expressions, which need separate review. The corrected graph inspection found 43 known BOM references (42 package components plus the metadata root), 43 graph nodes, 124 non-null edges, and zero unresolved non-null references. No node reference was null. PowerShell's follow-up inspection established that exactly 15 leaf components omit the optional `dependsOn` property, 28 nodes have dependency arrays, and there are zero explicit null properties, empty arrays, or null array elements. This is consistent with leaf nodes and is not a dangling-reference defect. The subsequent `uv lock --check` completed successfully (34 packages resolved).
 
+### Targeted license-file review — exact pinned versions
+
+The following primary-source files were checked at the exact package release tag (or exact release metadata where noted):
+
+| Component | Version | Evidence | Finding |
+|---|---:|---|---|
+| Jinja2 | 3.1.6 | [Pallets LICENSE.txt](https://github.com/pallets/jinja/blob/3.1.6/LICENSE.txt) | Three-clause BSD text; normalize to `BSD-3-Clause`. |
+| mpmath | 1.3.0 | [mpmath LICENSE](https://github.com/mpmath/mpmath/blob/1.3.0/LICENSE) | Three conditions, including non-endorsement; `BSD-3-Clause`. |
+| patsy | 1.0.3 | [Patsy LICENSE.txt](https://github.com/pydata/patsy/blob/v1.0.3/LICENSE.txt) | Main package is `BSD-2-Clause`; `patsy.compat` contains Python standard-library-derived code under `PSF-2.0`. Preserve both obligations in the inventory; do not flatten to one license. |
+| SciPy | 1.18.1 | [SciPy LICENSE.txt](https://github.com/scipy/scipy/blob/v1.18.1/LICENSE.txt), [LICENSES_bundled.txt](https://github.com/scipy/scipy/blob/v1.18.1/LICENSES_bundled.txt), [release pyproject.toml](https://github.com/scipy/scipy/blob/v1.18.1/pyproject.toml) | Main project license is BSD-style three-clause. The release also lists bundled components under distinct licenses (including BSD-2-Clause, MIT, BSL-1.0, Qhull and others). The package-level CycloneDX field does not enumerate all bundled notices; wheel-level/native inventory remains required. |
+| SymPy | 1.14.0 | [SymPy LICENSE](https://github.com/sympy/sympy/blob/1.14.0/LICENSE) | Main license text is three-clause BSD, and the same file includes third-party portions under BSD terms plus an MIT-licensed latex2sympy portion. The package-level SBOM declaration is therefore incomplete as a notice inventory; retain BSD and MIT notices. |
+
+The evidence supports a practical normalized summary for the top-level distributions, but it does **not** justify claiming a complete third-party notice inventory for SciPy or SymPy. The SBOM's license expression for PyTorch is consistent with the exact release's `pyproject.toml`; that release explicitly lists a large set of third-party license files, so the wheel contents and notices must still be checked. Patsy's embedded PSF-licensed compatibility code also demonstrates why a single legacy classifier is insufficient.
+
+This is a technical metadata review, not legal advice or a legal clearance decision. For redistributions, the actual installed wheel's `*.dist-info/licenses` files and bundled native notices take precedence over a generic PyPI classifier.
+
 ## Required inspection before acceptance
 
 1. Confirm CycloneDX schema validation passes.
@@ -102,7 +118,8 @@ This is only a structural inventory check. A non-empty declared license field do
 - [x] Repeat generation twice and obtain identical SHA-256 hashes.
 - [x] Preliminary count and missing-license-field check (42 components; none with an empty license array).
 - [x] Inventory license declarations and flag legacy/non-SPDX classifier strings for manual verification.
-- [ ] Inspect exact license evidence for the five legacy-classifier components and composite SPDX expressions.
+- [x] Review exact release license files for Jinja2, mpmath, patsy, SciPy and SymPy; record embedded/bundled notices and unresolved package-level metadata limitations.
+- [x] Confirm PyTorch's composite SPDX expression against its exact release metadata; bundled wheel notices remain in scope for artifact-level review.
 - [x] Validate non-null dependency graph references: 43 nodes, 124 non-null edges, zero unresolved references.
 - [x] Confirm the 15 nodes without `dependsOn` are leaf nodes: 28 nodes have dependencies; zero explicit null properties, empty arrays or null array elements.
 - [ ] Add CI generation and artifact retention after local command and output are verified.
