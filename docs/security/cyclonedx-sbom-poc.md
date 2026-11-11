@@ -4,7 +4,7 @@
 - Branch: `poc/issue-86-cyclonedx-sbom`
 - Generator candidate: `cyclonedx-bom==7.6.0`
 - Scope: Windows x64, CPython 3.12.10, the locked CPIE Python workload environment.
-- Status: local Windows 11 / CPython 3.12.10 execution passed for lock resolution/check, isolated tooling reconstruction, CycloneDX 1.6 schema validation and two identical SBOM generations. Lockfile and generated SBOM evidence still need review/commit or controlled artifact retention; component/license inspection and complementary scans remain pending.
+- Status: local Windows 11 / CPython 3.12.10 execution passed for lock resolution/check, isolated tooling reconstruction, CycloneDX 1.6 schema validation and two identical SBOM generations. The tooling lockfile is committed in `e135c3da32da6b109cdbce183db7f27a8ae0e76e`; generated SBOM JSON files remain local and require controlled artifact retention. Syft comparison and complementary vulnerability/license scans remain pending.
 
 ## Why a separate tooling environment
 
@@ -12,14 +12,12 @@ The generator is isolated from the workload environment so that SBOM tooling doe
 
 CycloneDX Python does not parse `uv.lock` directly. It inspects the installed target environment, which is reconstructed separately from the workload lock. The SBOM therefore describes the installed environment, not a direct serialization of the lockfile.
 
-## Initial lock creation — one-time maintainer action
+## Verify committed tooling lockfile
 
-Run from the repository root on Windows PowerShell. The command creates the isolated lockfile; review and commit the resulting `poc/supply-chain/sbom/uv.lock` in this branch.
+The initial tooling lockfile has already been generated, reviewed, validated and committed in `e135c3da32da6b109cdbce183db7f27a8ae0e76e`. Do not regenerate it during routine environment reconstruction. Run the following check from the repository root on Windows PowerShell to verify that the committed lockfile is consistent with the manifest.
 
 ```powershell
 $env:UV_PROJECT_ENVIRONMENT = "$env:TEMP\cpie-sbom-tooling-312"
-& $uv lock --project .\poc\supply-chain\sbom
-if ($LASTEXITCODE -ne 0) { throw "uv lock failed" }
 & $uv lock --check --project .\poc\supply-chain\sbom
 if ($LASTEXITCODE -ne 0) { throw "uv lock --check failed" }
 ```
@@ -62,7 +60,7 @@ Execution completed in an isolated Git worktree at commit `73ad6febd77c1de82eb74
 - SHA-256, both generated files: `9D26064913D909AF5B7E602B3212FBD617255733E164A26436B54A9C2A2A70C6`.
 - Result: byte-for-byte reproducibility demonstrated for these two runs against the unchanged target environment.
 
-This establishes repeatability of this specific local generation, not completeness of discovery or a production supply-chain control. The generated JSON files remain in the local worktree's `poc-results/` directory; their contents have not yet been committed or retained as CI artifacts. The generated tooling lockfile exists locally as an untracked file and still requires diff/review and commit.
+This establishes repeatability of this specific local generation, not completeness of discovery or a production supply-chain control. The generated JSON files remain in the local worktree's `poc-results/` directory; their contents have not yet been committed or retained as CI artifacts. The tooling lockfile was reviewed, validated with `uv lock --check` and `uv tree --locked`, and committed as `e135c3da32da6b109cdbce183db7f27a8ae0e76e`.
 
 ## Preliminary SBOM inventory inspection
 
@@ -112,7 +110,7 @@ This is a technical metadata review, not legal advice or a legal clearance decis
 ## Acceptance status
 
 - [x] Isolated generator manifest created with exact top-level version.
-- [x] Generate a transitive `uv.lock` and pass `uv lock --check` (review/commit the resulting file still pending).
+- [x] Generate, review, validate and commit the transitive `uv.lock` (`e135c3da32da6b109cdbce183db7f27a8ae0e76e`).
 - [x] Reconstruct the isolated generator environment with `uv sync --locked`.
 - [x] Generate a CycloneDX 1.6 SBOM with schema validation from the Python 3.12 target environment.
 - [x] Repeat generation twice and obtain identical SHA-256 hashes.
