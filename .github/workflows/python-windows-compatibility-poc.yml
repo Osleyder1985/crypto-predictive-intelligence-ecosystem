@@ -126,7 +126,7 @@ jobs:
           uv @syncArgs
 
       - name: Verify Python 3.12 imports and PyTorch CPU
-        id: runtime_validation
+        id: runtime_validation_312
         if: matrix.pytorch-extra
         shell: pwsh
         run: |
@@ -141,7 +141,7 @@ jobs:
           uv run --project ./poc/supply-chain/python --locked --group compatibility --extra pytorch-cpu python scripts/poc/python_cpi_workload_probe.py --output poc-results/python-cpi-workload-3.12-uv-lock.json
 
       - name: Verify Python 3.15 imports and PyTorch exclusion
-        id: runtime_validation
+        id: runtime_validation_315
         if: matrix.python-version == '3.15'
         shell: pwsh
         run: |
@@ -155,7 +155,8 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python-version }}
           LOCK_CHECK_OUTCOME: ${{ steps.lock_check.outcome }}
           RECONSTRUCTION_OUTCOME: ${{ steps.reconstruct.outcome }}
-          RUNTIME_VALIDATION_OUTCOME: ${{ steps.runtime_validation.outcome }}
+          RUNTIME_VALIDATION_312_OUTCOME: ${{ steps.runtime_validation_312.outcome }}
+          RUNTIME_VALIDATION_315_OUTCOME: ${{ steps.runtime_validation_315.outcome }}
           QUANTITATIVE_WORKLOAD_OUTCOME: ${{ steps.quantitative_workload.outcome }}
         run: |
           New-Item -ItemType Directory -Force -Path poc-results | Out-Null
@@ -177,7 +178,10 @@ jobs:
             uv_version = $uvVersion
             lock_check = $env:LOCK_CHECK_OUTCOME
             locked_reconstruction = $env:RECONSTRUCTION_OUTCOME
-            runtime_validation = $env:RUNTIME_VALIDATION_OUTCOME
+            runtime_validation = [ordered]@{
+              python_312 = $env:RUNTIME_VALIDATION_312_OUTCOME
+              python_315 = $env:RUNTIME_VALIDATION_315_OUTCOME
+            }
             quantitative_workload = $env:QUANTITATIVE_WORKLOAD_OUTCOME
           }
           $json = $evidence | ConvertTo-Json -Depth 5
