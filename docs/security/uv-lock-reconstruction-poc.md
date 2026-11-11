@@ -3,7 +3,7 @@
 - **Issue:** #86
 - **Scope:** Windows x64, CPython 3.12 and 3.15
 - **uv candidate:** 0.13.7 (pinned for this experiment; not yet an approved CPIE tool)
-- **Status:** two local clean reconstructions passed on both target lanes; CI run #12 for the current PR head completed successfully; SBOM, vulnerability and license audits remain pending.
+- **Status:** two local clean reconstructions passed on both target lanes; three consecutive Python 3.12 workload repetitions were stable (2.006837–2.028404 s); CI run #13 for the current PR head completed successfully; SBOM, vulnerability and license audits remain pending.
 - **Manifest/lock:** `poc/supply-chain/python/pyproject.toml` and committed `uv.lock`.
 
 ## Objective and boundary
@@ -54,13 +54,15 @@ Environment: `%TEMP%\\cpie-uv-312-clean2`.
 - Runtime imports: passed for NumPy, pandas, Polars, PyArrow, SciPy, scikit-learn, Statsmodels, XGBoost, LightGBM, psutil and PyTorch.
 - PyTorch: `2.15.0+cpu`; CUDA availability: `False` (expected for this CPU lane).
 - Quantitative workload: `PASS`, 12,000 synthetic rows requested, four model implementations (scikit-learn logistic regression, XGBoost CPU, LightGBM CPU and PyTorch MLP CPU).
-- Total workload time: 28.52173 seconds; model-training/inference stage: 28.338949 seconds.
+- The first workload report from this clean environment recorded 28.52173 seconds total and 28.338949 seconds in the model stage. This was an outlier and is not representative of the repeated timings below.
 - pandas/Polars feature and target parity: true; PyArrow roundtrip shape parity: true.
 - Temporal validation: `PASS`; chronological 80/20 split, one boundary row purged, 5,969 prior feature rows unchanged after future-data mutation, scaler fitted on training partition only.
 - Sampled peak process RSS: 587,526,144 bytes; sampling interval 0.1 seconds. This is sampled RSS, not the OS absolute peak.
-- CPU time: 10.109375 seconds. Available memory before/after: 5,646,655,488 / 5,442,011,136 bytes.
-- JSON report: `%TEMP%\\cpie-uv-312-clean2-workload.json`; SHA-256: `04722CC4D9E203E8C6F26E31FE14F536CF9B5EF14F67588DF8C97CE1B5099226`. The report remains on the user's machine and has not been uploaded.
-- A previous local execution of the same synthetic workload completed in 2.824129 seconds. The clean reconstruction took approximately 10.1 times longer. The new report attributes 28.338949 seconds to model training/inference, but the individual fit/predict timings do not explain that total. This variance is unresolved and must be investigated before drawing performance conclusions.
+- The original 28.52173-second report recorded CPU time 10.109375 seconds and available memory before/after of 5,646,655,488 / 5,442,011,136 bytes. Its SHA-256 is `04722CC4D9E203E8C6F26E31FE14F536CF9B5EF14F67588DF8C97CE1B5099226`; the JSON remains local and has not been uploaded.
+- A subsequent unprofiled run completed in 3.026026 seconds. A cProfile-instrumented run completed in 3.026026 seconds according to the workload's own timer; the profiler reported 9.555 seconds of profiled process time, so its timings are not directly comparable to the workload timer.
+- Three additional consecutive unprofiled runs passed: 2.028404, 2.006837 and 2.024968 seconds (mean 2.020070 s; range 0.021567 s, approximately 1.07% of the mean). Their model-stage times were 1.965046, 1.940634 and 1.955493 seconds. Sampled peak RSS was 539.48, 536.83 and 536.66 MiB; process CPU time was 1.96875, 1.9375 and 1.96875 seconds.
+- The repeated runs show that the 28.52173-second observation was not reproducible in this sequence. Its cause is not established; it is retained as an outlier rather than silently discarded.
+- The stage timer encloses all of `train_and_evaluate()`, while per-model fit/predict timers exclude scaling, model/tensor initialization and probability metric evaluation. Their totals are therefore not expected to equal the enclosing stage duration.
 
 ### Python 3.15.2 — independent clean sync without PyTorch
 
@@ -73,7 +75,7 @@ Environment: `%TEMP%\\cpie-uv-315-clean2`.
 
 ### CI validation — current PR head
 
-- Workflow run [42942746466](https://github.com/Osleyder1985/crypto-predictive-intelligence-ecosystem/actions/runs/42942746466), associated with PR head `9f63a907f15e7a946c9fad8b550d0c1fb0780f9e): completed with conclusion `success`.
+- Workflow run [42947694758](https://github.com/Osleyder1985/crypto-predictive-intelligence-ecosystem/actions/runs/42947694758), run #13, associated with current PR head `4cea31d0664c3ed1314d71024638c8818bc033ac`: completed with conclusion `success`.
 - Python 3.12 compatibility probe: `success`.
 - Python 3.15 compatibility probe: `success`.
 - uv locked reconstruction — Python 3.12: `success`.
@@ -81,9 +83,11 @@ Environment: `%TEMP%\\cpie-uv-315-clean2`.
 
 ### Interpretation and limitations
 
-The second independent local reconstruction passed for both specified Windows CPython lanes, and the CI matrix completed successfully for the PR head. This supports reproducibility for the tested Windows x64 CPython 3.12/3.15 configurations only.
+Independent clean local reconstructions passed for both specified Windows CPython lanes, and CI run #13 completed successfully for the current PR head. Three consecutive unprofiled Python 3.12 workload repetitions clustered tightly around 2.02 seconds. The earlier 28.52-second result remains an unexplained outlier, not a reproducible performance characteristic. This evidence supports repeatability only for the tested Windows x64 CPython 3.12/3.15 configurations.
 
-The synthetic model scores (accuracy approximately 0.488–0.514) are execution smoke-test outputs only; they provide no evidence of BTC predictability, trading alpha, expected return or profitability. The unexplained workload-time variance remains open. The evidence does not establish production suitability, cross-platform compatibility, or a technology baseline.
+The stage timer includes scaling, initialization and metric evaluation beyond the nested model fit/predict timers; this explains why those nested timings do not sum to the full model stage. The current instrumentation is adequate for this bounded POC but is not a fine-grained performance profiler.
+
+The synthetic model scores (accuracy approximately 0.488–0.514) are execution smoke-test outputs only; they provide no evidence of BTC predictability, trading alpha, expected return or profitability. The evidence does not establish production suitability, cross-platform compatibility, or a technology baseline.
 
 ## Reproduce locally
 
@@ -126,7 +130,7 @@ The reconstruction matrix is integrated into the existing default-branch workflo
 - Python 3.15 checks compatibility imports and asserts that PyTorch is absent.
 - The 3.12 lane uploads the workload JSON as a CI artifact.
 
-**CI status remains pending until a run for the current PR head completes successfully.** A workflow definition or successful local run is not CI evidence. If the workflow does not trigger, inspect the Actions run list and repository Actions settings; do not infer success.
+CI run #13 for the current PR head completed successfully. Future changes to this PR must be validated against their own HEAD; a successful earlier run is not evidence for a later commit.
 
 ## Remaining supply-chain acceptance work
 
@@ -137,9 +141,11 @@ The reconstruction matrix is integrated into the existing default-branch workflo
 - [x] Python 3.15 clean sync succeeds without PyTorch.
 - [x] Compatibility imports pass in the clean 3.15 environment.
 - [x] Independent second clean reconstruction from the same lockfile completed for Python 3.12 and 3.15.
-- [x] CI completed successfully for both lanes on PR head `9f63a907f15e7a946c9fad8b550d0c1fb0780f9e` (run `42942746466`).
-- [x] Record the SHA-256 of the reviewed local Python 3.12 workload report; the JSON itself remains local and is not attached.
-- [ ] Investigate and explain the approximately 10.1x workload-time variance between local runs.
+- [x] CI completed successfully for both lanes on current PR head `4cea31d0664c3ed1314d71024638c8818bc033ac` (run `42947694758`).
+- [x] Record the SHA-256 of the initial local Python 3.12 workload report; the JSON itself remains local and is not attached.
+- [x] Repeat the workload three times without profiling; all passed with a 1.07% max-min spread relative to the mean.
+- [x] Clarify nested timing scopes: model-stage duration includes scaling, initialization and metric evaluation not included in per-model fit/predict timers.
+- [ ] Obtain and retain the complete local JSON reports as artifacts if the evidence-retention policy requires the raw reports; they have not been uploaded.
 - [ ] Generate and inspect an SBOM (including transitive and native/runtime components).
 - [ ] Run vulnerability/advisory scans and document database timestamps, findings and exceptions.
 - [ ] Run license and copyright analysis over the complete dependency graph and relevant bundled/native components.
