@@ -72,6 +72,26 @@ Detecta licencias, copyright y avisos en archivos de código/distribuciones. Com
 
 Fuente: https://scancode-toolkit.readthedocs.io/
 
+## 2.7 Snapshot de versiones candidatas — 2026-11-11
+
+Este snapshot registra versiones publicadas observadas en los repositorios oficiales. Es una referencia para diseñar la POC, no una aprobación de adopción ni una instrucción para instalar herramientas sin aislamiento.
+
+| Herramienta | Versión candidata observada | Uso en la POC | Estado |
+|---|---:|---|---|
+| CycloneDX Python (`cyclonedx-bom`) | 7.6.0 | SBOM CycloneDX del entorno Python instalado | Candidata; ejecutar y validar |
+| Syft | 1.57.1 | SBOM transversal y comparación de cobertura | Candidata; ejecutar y comparar |
+| pip-audit | 2.10.1 | Auditoría de advisories Python | Candidata; ejecutar y revisar |
+| Grype | No fijada | Escaneo opcional del SBOM | Pendiente de comparar |
+| OSV-Scanner | No fijada | Alternativa/complemento de escaneo | Pendiente de comparar |
+| ScanCode Toolkit | No fijada | Inspección de archivos LICENSE/NOTICE/copyright | Pendiente de verificar versión y ejecutar |
+
+Fuentes oficiales de versiones:
+- CycloneDX Python: https://github.com/CycloneDX/cyclonedx-python/releases
+- Syft: https://github.com/anchore/syft/releases
+- pip-audit: https://github.com/pypa/pip-audit/releases
+
+Las versiones de herramientas de seguridad también deben fijarse por versión y, cuando sea posible, hash/procedencia. Registrar fecha de ejecución y fecha/identificador de la base de advisories. Una versión "latest" consultada hoy no debe resolverse dinámicamente en CI: la POC debe probar versiones fijadas y renovarlas mediante revisión explícita.
+
 ## 3. Flujo objetivo
 
 ```mermaid
