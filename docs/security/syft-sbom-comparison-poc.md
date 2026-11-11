@@ -61,6 +61,17 @@ if (-not $cosign) {
 $cosignVersion = (& cosign version 2>&1 | Out-String)
 $cosignVersion
 
+$versionMatch = [regex]::Match($cosignVersion, "(?m)\b(?:v)?(\d+)\.(\d+)\.(\d+)\b")
+if (-not $versionMatch) {
+    throw "Could not determine Cosign version"
+}
+$cosignMajor = [int]$versionMatch.Groups[1].Value
+$cosignMinor = [int]$versionMatch.Groups[2].Value
+$cosignPatch = [int]$versionMatch.Groups[3].Value
+if (($cosignMajor, $cosignMinor, $cosignPatch) -lt (2, 5, 0)) {
+    throw "Cosign >= 2.5.0 is required for Sigstore bundle verification"
+}
+
 & cosign verify-blob $checksums --bundle $bundle --certificate-identity-regexp 'https://github\.com/anchore/syft/\.github/workflows/.+' --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 if ($LASTEXITCODE -ne 0) {
     throw "Syft checksums signature verification failed"
