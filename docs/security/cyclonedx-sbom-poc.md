@@ -74,7 +74,7 @@ The maintainer's PowerShell inspection confirmed:
 - The metadata timestamp is `1970-01-01T00:00:00+00:00`, expected from the explicitly fixed `SOURCE_DATE_EPOCH=0` used to make output reproducible. This is not the actual generation time and must not be interpreted as such.
 - The displayed component inventory includes the quantitative workload packages (including NumPy, pandas, Polars, PyArrow, scikit-learn, SciPy, XGBoost, LightGBM and PyTorch CPU) and their visible Python dependencies.
 
-This is only a structural inventory check. A non-empty declared license field does not establish license correctness, compatibility, completeness, or legal clearance. Exact SPDX identifiers/expressions and dependency-edge coverage still require inspection.
+This is only a structural inventory check. A non-empty declared license field does not establish license correctness, compatibility, completeness, or legal clearance. Exact SPDX identifiers/expressions and dependency-edge coverage still require inspection. The maintainer's first license report grouped 15 components as MIT, 12 as BSD-3-Clause, 4 as Apache-2.0, and the remaining 11 across BSD-2-Clause, PSF-2.0, composite SPDX expressions and legacy license-classifier text. Five components (Jinja2, mpmath, patsy, SciPy and SymPy) expose the legacy text `License :: OSI Approved :: BSD License`; this is not a precise SPDX identifier and must not be silently normalized to a specific BSD variant. NumPy and PyTorch expose composite SPDX expressions, which need separate review. The first graph-validation script terminated on a null dependency key in PowerShell; therefore no conclusion about graph integrity or the final lock recheck can be drawn from that attempt.
 
 ## Required inspection before acceptance
 
@@ -101,7 +101,9 @@ This is only a structural inventory check. A non-empty declared license field do
 - [x] Generate a CycloneDX 1.6 SBOM with schema validation from the Python 3.12 target environment.
 - [x] Repeat generation twice and obtain identical SHA-256 hashes.
 - [x] Preliminary count and missing-license-field check (42 components; none with an empty license array).
-- [ ] Inspect exact SPDX license identifiers/expressions, dependency graph and detection gaps.
+- [x] Inventory license declarations and flag legacy/non-SPDX classifier strings for manual verification.
+- [ ] Inspect exact license evidence for the five legacy-classifier components and composite SPDX expressions.
+- [ ] Validate dependency graph and detection gaps (first PowerShell validator aborted on a null key; no graph verdict yet).
 - [ ] Add CI generation and artifact retention after local command and output are verified.
 - [ ] Compare against a separately pinned Syft run.
 - [ ] Triage vulnerabilities and license/copyright findings.
