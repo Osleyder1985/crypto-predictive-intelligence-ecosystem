@@ -62,7 +62,19 @@ Execution completed in an isolated Git worktree at commit `73ad6febd77c1de82eb74
 - SHA-256, both generated files: `9D26064913D909AF5B7E602B3212FBD617255733E164A26436B54A9C2A2A70C6`.
 - Result: byte-for-byte reproducibility demonstrated for these two runs against the unchanged target environment.
 
-This establishes repeatability of this specific local generation, not completeness of discovery or a production supply-chain control. The generated JSON files remain in the local worktree's `poc-results/` directory; their contents have not yet been committed or retained as CI artifacts. The generated tooling lockfile also still requires a Git diff/review and commit.
+This establishes repeatability of this specific local generation, not completeness of discovery or a production supply-chain control. The generated JSON files remain in the local worktree's `poc-results/` directory; their contents have not yet been committed or retained as CI artifacts. The generated tooling lockfile exists locally as an untracked file and still requires diff/review and commit.
+
+## Preliminary SBOM inventory inspection
+
+The maintainer's PowerShell inspection confirmed:
+
+- 42 package components are present in the generated SBOM.
+- All 42 report at least one declared license entry according to the CycloneDX `licenses` field; no component was returned by the query for an empty license array.
+- The SBOM metadata identifies the root application as `cpie-python-supply-chain-poc` version `0.1.0`.
+- The metadata timestamp is `1970-01-01T00:00:00+00:00`, expected from the explicitly fixed `SOURCE_DATE_EPOCH=0` used to make output reproducible. This is not the actual generation time and must not be interpreted as such.
+- The displayed component inventory includes the quantitative workload packages (including NumPy, pandas, Polars, PyArrow, scikit-learn, SciPy, XGBoost, LightGBM and PyTorch CPU) and their visible Python dependencies.
+
+This is only a structural inventory check. A non-empty declared license field does not establish license correctness, compatibility, completeness, or legal clearance. Exact SPDX identifiers/expressions and dependency-edge coverage still require inspection.
 
 ## Required inspection before acceptance
 
@@ -88,7 +100,8 @@ This establishes repeatability of this specific local generation, not completene
 - [x] Reconstruct the isolated generator environment with `uv sync --locked`.
 - [x] Generate a CycloneDX 1.6 SBOM with schema validation from the Python 3.12 target environment.
 - [x] Repeat generation twice and obtain identical SHA-256 hashes.
-- [ ] Inspect component graph, licenses and detection gaps.
+- [x] Preliminary count and missing-license-field check (42 components; none with an empty license array).
+- [ ] Inspect exact SPDX license identifiers/expressions, dependency graph and detection gaps.
 - [ ] Add CI generation and artifact retention after local command and output are verified.
 - [ ] Compare against a separately pinned Syft run.
 - [ ] Triage vulnerabilities and license/copyright findings.
