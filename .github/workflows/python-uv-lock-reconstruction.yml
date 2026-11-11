@@ -28,7 +28,7 @@ jobs:
             pytorch-extra: false
 
     env:
-      UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}\\cpie-uv-${{ matrix.python-version }}
+      UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/cpie-uv-${{ matrix.python-version }}
       UV_NO_PROGRESS: "1"
 
     steps:
