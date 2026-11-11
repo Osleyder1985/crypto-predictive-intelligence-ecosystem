@@ -196,7 +196,7 @@ Los estados siguientes describen únicamente la evidencia accesible en esta revi
 
 - La arquitectura modular, ADR-0001, ADR-0002, threat model, matriz de compatibilidad, estrategia de pruebas, documentación de operaciones y roadmap están versionados.
 - Existe workflow específico de compatibilidad Python/Windows y se observaron POC cuantitativas ejecutadas.
-- Para PR #88, el run #42998870533 terminó con cuatro jobs satisfactorios en HEAD `121c91cd705997345afce4ba12b54e2100445c50` y publicó cuatro artifacts de evidencia. La documentación se actualizó después en HEAD `7b379dce7c320bac0d3cd2ef7cd8546ef0950222`; el run #18 (`42999290951`) para ese HEAD estaba en ejecución en la última consulta.
+- Para PR #88, el run #42998870533 terminó con cuatro jobs satisfactorios en HEAD `121c91cd705997345afce4ba12b54e2100445c50` y publicó cuatro artifacts de evidencia. La documentación se actualizó después en HEAD `7b379dce7c320bac0d3cd2ef7cd8546ef0950222`; el run #18 (`42999290951`) para ese HEAD terminó con `success` y cuatro jobs correctos.
 - La POC cuantitativa integrada mediante PR #85 valida únicamente el alcance sintético/CPU-only descrito en su evidencia; no valida predicción con mercado real ni selección tecnológica global.
 - El Issue #5 registra que la selección tecnológica permanece parcial/no aprobada como baseline por falta de cierre de licencias transitivas, SBOM, notices, lockfiles integrales e integración representativa.
 - PR #90 contiene resultados locales documentados para CycloneDX, pero el JSON SBOM continúa sin artifact CI verificable ni retención duradera.
