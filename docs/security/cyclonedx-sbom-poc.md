@@ -4,7 +4,7 @@
 - Branch: `poc/issue-86-cyclonedx-sbom`
 - Generator candidate: `cyclonedx-bom==7.6.0`
 - Scope: Windows x64, CPython 3.12.10, the locked CPIE Python workload environment.
-- Status: manifest created; lock generation and local execution are pending user-machine validation. No SBOM has been generated or approved yet.
+- Status: local Windows 11 / CPython 3.12.10 execution passed for lock resolution/check, isolated tooling reconstruction, CycloneDX 1.6 schema validation and two identical SBOM generations. Lockfile and generated SBOM evidence still need review/commit or controlled artifact retention; component/license inspection and complementary scans remain pending.
 
 ## Why a separate tooling environment
 
@@ -49,6 +49,21 @@ Get-FileHash .\poc-results\python-312-environment.cdx.json -Algorithm SHA256
 
 The fixed `SOURCE_DATE_EPOCH=0` is used to remove time-based variability in this POC. It is not the actual build time; record the execution timestamp separately in the evidence report. Re-run generation twice against the unchanged target environment and compare SHA-256 before claiming deterministic output.
 
+## Local execution evidence — Windows 11
+
+Execution completed in an isolated Git worktree at commit `73ad6febd77c1de82eb74be3682230c7f5c748cb`.
+
+- `uv lock`: passed; resolver reported 34 packages.
+- `uv lock --check`: passed.
+- `uv sync --locked`: passed; isolated generator environment installed 33 packages, including `cyclonedx-bom==7.6.0`.
+- Target interpreter: CPython 3.12.10 at `%TEMP%\\cpie-uv-312-clean2\\Scripts\\python.exe`.
+- CycloneDX generation with `--output-reproducible --validate --spec-version 1.6 --output-format JSON`: both runs passed.
+- Output: CycloneDX format, specification 1.6, 42 components, 43 dependency entries.
+- SHA-256, both generated files: `9D26064913D909AF5B7E602B3212FBD617255733E164A26436B54A9C2A2A70C6`.
+- Result: byte-for-byte reproducibility demonstrated for these two runs against the unchanged target environment.
+
+This establishes repeatability of this specific local generation, not completeness of discovery or a production supply-chain control. The generated JSON files remain in the local worktree's `poc-results/` directory; their contents have not yet been committed or retained as CI artifacts. The generated tooling lockfile also still requires a Git diff/review and commit.
+
 ## Required inspection before acceptance
 
 1. Confirm CycloneDX schema validation passes.
@@ -69,10 +84,10 @@ The fixed `SOURCE_DATE_EPOCH=0` is used to remove time-based variability in this
 ## Acceptance status
 
 - [x] Isolated generator manifest created with exact top-level version.
-- [ ] Generate and review a transitive `uv.lock` with hashes.
-- [ ] Cleanly reconstruct the generator environment from that lock.
-- [ ] Generate validated CycloneDX 1.6 SBOM from the clean Python 3.12 target environment.
-- [ ] Repeat generation and compare output hashes.
+- [x] Generate a transitive `uv.lock` and pass `uv lock --check` (review/commit the resulting file still pending).
+- [x] Reconstruct the isolated generator environment with `uv sync --locked`.
+- [x] Generate a CycloneDX 1.6 SBOM with schema validation from the Python 3.12 target environment.
+- [x] Repeat generation twice and obtain identical SHA-256 hashes.
 - [ ] Inspect component graph, licenses and detection gaps.
 - [ ] Add CI generation and artifact retention after local command and output are verified.
 - [ ] Compare against a separately pinned Syft run.
