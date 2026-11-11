@@ -109,19 +109,16 @@ Never use `git clean`, broad wildcard deletion or removal of the pre-existing vi
 
 ## CI validation
 
-Workflow: `.github/workflows/python-uv-lock-reconstruction.yml`.
+The reconstruction matrix is integrated into the existing default-branch workflow `.github/workflows/python-windows-compatibility-poc.yml`, rather than relying on a new workflow introduced by this PR. This avoids the GitHub Actions bootstrap limitation for newly added `pull_request` workflows.
 
-**Bootstrap constraint:** GitHub documents that a `pull_request` workflow runs only when its workflow file already exists on the default branch. This workflow is being introduced by PR #88 itself, so its absence from the run list is expected before that workflow is established on `main`; it is not evidence that the YAML failed or that Actions is disabled. The workflow file must first be integrated through the repository's normal review process. After it exists on `main`, update/synchronize this PR (or dispatch the workflow manually) to obtain CI evidence for the candidate branch. Do not treat this PR's local results as a substitute.
+- The existing workflow's path filters include the Python supply-chain manifest, universal lockfile and this POC documentation.
+- A dedicated `uv-lock-reconstruction` job runs Windows CPython 3.12 and 3.15 matrix lanes.
+- Both lanes pin uv 0.13.7, run `uv lock --check`, then `uv sync --locked`.
+- Python 3.12 installs the PyTorch CPU extra, checks imports and runs the quantitative workload.
+- Python 3.15 checks compatibility imports and asserts that PyTorch is absent.
+- The 3.12 lane uploads the workload JSON as a CI artifact.
 
-
-- Triggered by pull requests changing this workflow, the POC manifest/lock, the workload script or this document; also supports manual dispatch.
-- Uses Windows runners, CPython 3.12 and 3.15, and pinned uv 0.13.7.
-- Runs `uv lock --check` and `uv sync --locked` in isolated runner-temp environments.
-- Python 3.12 lane installs PyTorch CPU, checks imports and runs the quantitative workload.
-- Python 3.15 lane checks compatibility imports and asserts PyTorch is absent.
-- Uploads workload JSON evidence from the 3.12 lane when generated.
-
-**CI status is pending until GitHub Actions completes successfully for the PR head.** A workflow definition or successful local run is not CI evidence.
+**CI status remains pending until a run for the current PR head completes successfully.** A workflow definition or successful local run is not CI evidence. If the workflow does not trigger, inspect the Actions run list and repository Actions settings; do not infer success.
 
 ## Remaining supply-chain acceptance work
 
