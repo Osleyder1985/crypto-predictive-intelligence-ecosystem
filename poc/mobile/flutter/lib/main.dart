@@ -92,7 +92,7 @@ class _DemoHomeState extends State<DemoHome> {
                   _Action(
                     label: entry.value,
                     selected: _scenario == entry.key,
-                    onTap: () => setState(() { _scenario = entry.key; _retried = false; }),
+                    onTap: () => setState(() { _scenario = entry.key; _retried = false; if (entry.key == 'research-invalid-range') { _start = '2025-01-07'; _end = '2025-01-01'; } }),
                   ),
               ],
             ),
@@ -135,8 +135,9 @@ class _DemoHomeState extends State<DemoHome> {
       case 'research-invalid-range':
         return [
           const Text('Validación del período', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-          _DateField(label: 'Inicio', value: _start, onChanged: (value) => setState(() => _start = value)),
-          _DateField(label: 'Fin', value: _end, onChanged: (value) => setState(() => _end = value)),
+          Text('Inicio: $_start'),
+          Text('Fin: $_end'),
+          _Action(label: 'Invertir rango de fechas', onTap: () => setState(() { final previous = _start; _start = _end; _end = previous; })),
           Text(_validRange ? 'Rango válido' : 'VALIDATION_ERROR: la fecha inicial debe ser anterior o igual a la final.', style: TextStyle(color: _validRange ? const Color(0xFF176B42) : const Color(0xFFAA2222), fontWeight: FontWeight.w700)),
         ];
       case 'partial-data':
@@ -243,25 +244,3 @@ class _Action extends StatelessWidget {
   );
 }
 
-class _DateField extends StatelessWidget {
-  const _DateField({required this.label, required this.value, required this.onChanged});
-  final String label;
-  final String value;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label),
-      SizedBox(
-        height: 46,
-        child: TextField(
-          controller: TextEditingController(text: value),
-          onChanged: onChanged,
-          decoration: const InputDecoration(border: OutlineInputBorder(), isDense: true),
-        ),
-      ),
-    ],
-  );
-}
