@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
+import 'package:schema_engine/schema_engine.dart';
 
 void main() {
   runApp(const CpieMobileApp());
@@ -37,7 +38,13 @@ class _DemoHomeState extends State<DemoHome> {
 
   Future<Map<String, dynamic>> _loadFixture() async {
     final raw = await rootBundle.loadString('assets/fixtures/research-demo.json');
-    final data = jsonDecode(raw) as Map<String, dynamic>;
+    final schemaRaw = await rootBundle.loadString('assets/fixtures/research-demo.schema.json');
+    final validator = JsonSchema.parse(schemaRaw).compile();
+    final decoded = jsonDecode(raw);
+    if (!validator.isValid(decoded)) {
+      throw const FormatException('Shared POC fixture failed Draft 2020-12 schema validation.');
+    }
+    final data = decoded as Map<String, dynamic>;
     if (data['environmentStatus'] != 'SIMULATED' ||
         (data['scenarios'] as List).length != 7 ||
         (data['evaluations'] as List).length != 2) {
