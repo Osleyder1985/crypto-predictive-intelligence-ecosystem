@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "org.cpie.mobilepoc"
     },
     "android": {
       "package": "org.cpie.mobilepoc"
