@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://cpi.example/schemas/research-demo.schema.json",
+  "$id": "urn:cpi:schemas:research-demo:1.0.0",
   "title": "CPIE shared frontend research demo fixture",
   "description": "Experimental deterministic UI test fixture. Not a production API or market-data contract.",
   "type": "object",
