@@ -65,7 +65,7 @@ export default function App() {
         <View style={styles.disclosure}><Text style={styles.disclosureText}>{fixture.disclosure} · {fixture.environmentStatus}</Text></View>
         {!validFixture && <Text style={styles.error}>Fixture/schema validation failed. UI is blocked.</Text>}
         <Text style={styles.subheading}>Escenarios</Text>
-        <View style={styles.nav}>{(Object.keys(scenarioLabels) as ScenarioId[]).map((id) => <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: scenario === id }} onPress={() => {setScenario(id);setRetried(false);}} style={[styles.navItem, scenario === id && styles.navSelected]}><Text style={[styles.navText, scenario === id && styles.navTextSelected]}>{scenarioLabels[id]}</Text></Pressable>)}</View>
+        <View style={styles.nav}>{(Object.keys(scenarioLabels) as ScenarioId[]).map((id) => <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: scenario === id }} onPress={() => {setScenario(id);setRetried(false);if(id === "research-invalid-range"){setStart("2025-01-07");setEnd("2025-01-01");}}} style={[styles.navItem, scenario === id && styles.navSelected]}><Text style={[styles.navText, scenario === id && styles.navTextSelected]}>{scenarioLabels[id]}</Text></Pressable>)}</View>
         {validFixture ? renderDetails() : null}
         <View style={styles.card}>
           <Text style={styles.strong}>Estado esperado: {selected?.expectedState}</Text>
