@@ -1,0 +1,162 @@
+{
+  "fixtureVersion": "1.0.0",
+  "disclosure": "DEMO — DATOS SINTÉTICOS",
+  "environmentStatus": "SIMULATED",
+  "researchSelection": {
+    "asset": {
+      "symbol": "BTC",
+      "displayName": "Bitcoin (demo)"
+    },
+    "instrument": {
+      "id": "demo-btc-instrument",
+      "displayName": "Instrumento sintético",
+      "venue": "DEMO"
+    },
+    "interval": "1d",
+    "period": {
+      "start": "2025-01-01T00:00:00Z",
+      "end": "2025-01-07T23:59:59Z"
+    },
+    "cutoff": "2025-01-08T00:00:00Z"
+  },
+  "dataQuality": {
+    "status": "PARTIAL",
+    "coverage": {
+      "description": "Fixture ilustrativo; no representa cobertura de mercado.",
+      "missingIntervals": [
+        {
+          "start": "2025-01-04T00:00:00Z",
+          "end": "2025-01-04T23:59:59Z",
+          "reason": "Intervalo omitido deliberadamente en el fixture."
+        }
+      ]
+    },
+    "limitations": [
+      "Los datos son sintéticos y no describen el mercado real.",
+      "No se proporcionan precios ni series OHLCV.",
+      "No se permite inferir continuidad ni cobertura real."
+    ]
+  },
+  "researchResult": {
+    "status": "SIMULATED",
+    "summary": "Resultado demostrativo sin análisis de mercado.",
+    "sections": [
+      {
+        "id": "episodes",
+        "title": "Episodios de mercado",
+        "status": "NOT_AVAILABLE",
+        "reason": "No se incluyen datos de mercado ni metodología ejecutada."
+      },
+      {
+        "id": "technical-structure",
+        "title": "Estructura técnica",
+        "status": "NOT_AVAILABLE",
+        "reason": "No existen observaciones OHLCV para calcular zonas."
+      },
+      {
+        "id": "event-hypotheses",
+        "title": "Eventos e hipótesis",
+        "status": "NOT_AVAILABLE",
+        "reason": "No se incorporan noticias ni evidencia externa."
+      }
+    ],
+    "uncertainty": {
+      "status": "NOT_QUANTIFIED",
+      "reason": "No se ejecutó ningún modelo ni calibración."
+    }
+  },
+  "evidence": [
+    {
+      "id": "demo-evidence-001",
+      "kind": "fixture-note",
+      "statement": "Este registro solo demuestra cómo se presenta una referencia de evidencia.",
+      "epistemicStatus": "SYNTHETIC_EXAMPLE",
+      "publishedAt": null,
+      "availableAt": null,
+      "ingestedAt": null,
+      "source": "CPIE shared POC fixture",
+      "limitations": [
+        "No es una noticia ni una fuente externa.",
+        "No respalda una afirmación sobre BTC."
+      ]
+    }
+  ],
+  "evaluations": [
+    {
+      "id": "demo-evaluation-001",
+      "createdAt": "2025-01-08T10:00:00Z",
+      "asset": "BTC",
+      "instrument": "demo-btc-instrument",
+      "periodStart": "2025-01-01T00:00:00Z",
+      "periodEnd": "2025-01-07T23:59:59Z",
+      "cutoff": "2025-01-08T00:00:00Z",
+      "status": "SIMULATED",
+      "methodologyVersion": "demo-methodology-1",
+      "snapshotId": "demo-snapshot-001",
+      "summary": "Registro sintético A; no contiene una conclusión de mercado."
+    },
+    {
+      "id": "demo-evaluation-002",
+      "createdAt": "2025-01-09T10:00:00Z",
+      "asset": "BTC",
+      "instrument": "demo-btc-instrument",
+      "periodStart": "2025-01-01T00:00:00Z",
+      "periodEnd": "2025-01-07T23:59:59Z",
+      "cutoff": "2025-01-08T00:00:00Z",
+      "status": "SIMULATED",
+      "methodologyVersion": "demo-methodology-1",
+      "snapshotId": "demo-snapshot-002",
+      "summary": "Registro sintético B; no contiene una conclusión de mercado."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "overview",
+      "expectedState": "SIMULATED",
+      "expectedOutcome": "Mostrar disclosure persistente y las dos evaluaciones sintéticas."
+    },
+    {
+      "id": "research-valid",
+      "expectedState": "SIMULATED",
+      "expectedOutcome": "Aceptar la selección y mostrar resultado sintético con limitaciones."
+    },
+    {
+      "id": "research-invalid-range",
+      "expectedState": "VALIDATION_ERROR",
+      "input": {
+        "start": "2025-01-07T00:00:00Z",
+        "end": "2025-01-01T00:00:00Z"
+      },
+      "expectedOutcome": "Rechazar el rango y asociar el error al campo correspondiente."
+    },
+    {
+      "id": "partial-data",
+      "expectedState": "PARTIAL",
+      "expectedOutcome": "Mostrar el intervalo omitido y las limitaciones; no presentar el conjunto como completo."
+    },
+    {
+      "id": "not-available",
+      "expectedState": "NOT_AVAILABLE",
+      "target": "technical-structure",
+      "expectedOutcome": "Explicar que no hay datos OHLCV para calcular zonas."
+    },
+    {
+      "id": "recoverable-error",
+      "expectedState": "ERROR",
+      "input": {
+        "errorCode": "DEMO_RECOVERABLE",
+        "message": "Fallo sintético recuperable para probar el estado de error."
+      },
+      "expectedOutcome": "Mostrar error recuperable y acción de reintento; no convertirlo en ausencia de datos."
+    },
+    {
+      "id": "evaluation-comparison",
+      "expectedState": "SIMULATED",
+      "evaluationIds": [
+        "demo-evaluation-001",
+        "demo-evaluation-002"
+      ],
+      "expectedOutcome": "Comparar metadatos y mostrar que ambos registros son sintéticos; no afirmar evolución del mercado."
+    }
+  ]
+}
