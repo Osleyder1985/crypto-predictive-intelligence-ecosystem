@@ -49,7 +49,7 @@ Official references:
 
 ## 3. Comparable product slice
 
-Both apps consume the same canonical synthetic JSON fixture and schema from `poc/frontend/shared`. A deterministic sync script materializes platform-specific asset copies and checks SHA-256 equality. No app may maintain a manually edited fixture variant.
+Both apps consume the same canonical synthetic JSON fixture from `poc/frontend/shared`; the JSON Schema is synchronized alongside it and SHA-256 checked. A deterministic sync script materializes platform-specific asset copies. React Native validates the fixture against Draft 2020-12 at runtime with Ajv. Flutter currently enforces explicit fixture invariants at load and widget-test time; full Draft 2020-12 schema validation in Dart remains a known parity gap. No app may maintain a manually edited fixture variant.
 
 Required screens/states:
 1. Overview with persistent synthetic/demo disclosure and BTC demo instrument.
