@@ -20,7 +20,7 @@
 | iOS native build on Windows | Not local; macOS/Xcode required, or EAS cloud build | Not local; macOS/Xcode required, or a macOS CI/build host |
 | Native integration | React Native native modules / Expo config plugins | Flutter plugins, FFI/JNI direct interop (Flutter 3.50 stable) |
 | Web reuse | React concepts and TypeScript shared with Next.js web POC; UI components are not automatically shared | Same Dart/Flutter UI can target web, but it is a separate frontend technology from the Next.js POC |
-| Fixture integration | Generated JSON assets imported by Metro | Generated JSON assets loaded with rootBundle |
+| Fixture integration | Generated JSON assets imported by Metro; Ajv Draft 2020-12 validation | Generated JSON assets loaded with rootBundle; schema_engine Draft 2020-12 validation |
 
 Expo SDK and React Native patch candidates were cross-checked against the npm stable tags at the cut-off: Expo 58.0.23, React Native 0.88.1 and Ajv 8.20.0. Expo's compatibility table provides the SDK-level React Native/React mapping; `npx expo install --check` and clean dependency resolution must still verify the exact combination. Flutter 3.50.0 / Dart 3.14.0 are from the official release announcement. A release number does not establish CPIE compatibility. The final package graph, patch updates, Android toolchain, Xcode version and iOS deployment target must be captured by clean POC runs.
 
@@ -41,6 +41,7 @@ Official references:
 - Expo 58.0.23 package release: https://www.npmjs.com/package/expo
 - React Native 0.88.1 package release: https://www.npmjs.com/package/react-native
 - Ajv 8.20.0 package release: https://www.npmjs.com/package/ajv
+- schema_engine 1.0.0 package, API, supported dialects and MIT license: https://pub.dev/packages/schema_engine
 - Expo EAS Build: https://docs.expo.dev/build/introduction/
 - Flutter 3.50 release: https://flutter.dev/blog/whats-new-in-flutter-3-50
 - Flutter SDK archive: https://docs.flutter.dev/install/archive
@@ -49,7 +50,7 @@ Official references:
 
 ## 3. Comparable product slice
 
-Both apps consume the same canonical synthetic JSON fixture from `poc/frontend/shared`; the JSON Schema is synchronized alongside it and SHA-256 checked. A deterministic sync script materializes platform-specific asset copies. React Native validates the fixture against Draft 2020-12 at runtime with Ajv. Flutter currently enforces explicit fixture invariants at load and widget-test time; full Draft 2020-12 schema validation in Dart remains a known parity gap. No app may maintain a manually edited fixture variant.
+Both apps consume the same canonical synthetic JSON fixture from `poc/frontend/shared`; the JSON Schema is synchronized alongside it and SHA-256 checked. A deterministic sync script materializes platform-specific asset copies. React Native validates the fixture against Draft 2020-12 at runtime with Ajv 8.20.0. Flutter validates the same schema at load and test time with `schema_engine` 1.0.0 (Dart >=3.13, MIT, no runtime dependencies). The package is new and has limited adoption signals; its inclusion is experimental and must pass POC compatibility, security and license checks before any baseline decision. No app may maintain a manually edited fixture variant.
 
 Required screens/states:
 1. Overview with persistent synthetic/demo disclosure and BTC demo instrument.
@@ -82,7 +83,7 @@ Run frameworks sequentially on the 16 GB Windows machine. Do not compare debug b
 - Fixture materialization/hash verification: `scripts/sync_mobile_fixtures.mjs`.
 - Run instructions: `poc/mobile/README.md`.
 
-This PR creates source scaffolding only. No npm install, Flutter pub get, analyzer, unit/widget test, Android build, iOS build, device run, accessibility audit, performance profile, SBOM or license audit has been executed in this environment.
+This PR creates source scaffolding only. No npm install, Flutter pub get, analyzer, unit/widget test, Android build, iOS build, device run, accessibility audit, performance profile, SBOM or license audit has been executed in this environment. The Flutter Draft 2020-12 validator dependency has not yet been resolved or tested against the CPIE fixture.
 
 ## 6. Decision gates
 
