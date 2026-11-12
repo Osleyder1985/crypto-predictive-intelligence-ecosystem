@@ -83,7 +83,7 @@ Run frameworks sequentially on the 16 GB Windows machine. Do not compare debug b
 - Fixture materialization/hash verification: `scripts/sync_mobile_fixtures.mjs`.
 - Run instructions: `poc/mobile/README.md`.
 
-This PR creates source scaffolding only. No npm install, Flutter pub get, analyzer, unit/widget test, Android build, iOS build, device run, accessibility audit, performance profile, SBOM or license audit has been executed in this environment. The Flutter Draft 2020-12 validator dependency has not yet been resolved or tested against the CPIE fixture.
+This PR creates source scaffolding and CI definitions only. The workflow defines Linux Android checks/builds for pull requests and manual-only macOS iOS Simulator builds for both frameworks to avoid unexpected macOS runner charges. The workflow is not yet in the default branch, so neither path has run. No npm install, Flutter pub get, analyzer, unit/widget test, Android build, iOS build, device run, accessibility audit, performance profile, SBOM or license audit has been executed in this environment. The Flutter Draft 2020-12 validator dependency has not yet been resolved or tested against the CPIE fixture.
 
 ## 6. Decision gates
 
