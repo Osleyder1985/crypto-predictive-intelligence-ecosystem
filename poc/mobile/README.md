@@ -15,7 +15,7 @@ The sync script copies the canonical fixture and schema into both app asset dire
 
 ## React Native + Expo
 
-Candidate versions at the 2026-11-12 cut: Expo SDK 58.0.0, React Native 0.88.0, React 19.3.0, Ajv 8.17.1, TypeScript 7.0.2, Node.js 26.13.1. Expo's SDK reference maps SDK 58 to RN 0.88 / React 19.3 and requires Node.js 22.13.x or newer.
+Candidate versions at the 2026-11-12 cut: Expo SDK 58.0.23, React Native 0.88.1, React 19.3.0, Ajv 8.20.0, TypeScript 7.0.2, Node.js 26.13.1. Expo's SDK reference maps SDK 58 to RN 0.88 / React 19.3 and requires Node.js 22.13.x or newer.
 
 ```powershell
 cd .\poc\mobile\react-native
