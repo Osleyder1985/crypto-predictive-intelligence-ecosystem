@@ -11,8 +11,8 @@
 
 | Dimension | React Native + Expo | Flutter |
 |---|---|---|
-| Framework candidate | React Native 0.88.0 | Flutter 3.50.0 |
-| App framework/tooling | Expo SDK 58.0.0 | Flutter SDK 3.50.0 |
+| Framework candidate | React Native 0.88.1 | Flutter 3.50.0 |
+| App framework/tooling | Expo SDK 58.0.23 | Flutter SDK 3.50.0 |
 | UI language | TypeScript/JavaScript + React | Dart 3.14.0 |
 | React/runtime | React 19.3.0 | Not applicable |
 | Node runtime | Node 26.13.1 candidate; Expo SDK 58 minimum Node 22.13.x | Not required by Flutter SDK |
