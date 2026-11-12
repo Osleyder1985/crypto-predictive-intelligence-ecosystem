@@ -46,6 +46,7 @@ Do not run both builds concurrently on the 16 GB Windows target. Record the gene
 - The error/retry scenario is deterministic and local; retry does not call a remote service.
 - No automated browser E2E, accessibility audit, bundle analysis, performance/RAM profile, SBOM, license audit, or security scan has run.
 - No package lockfiles have been generated or validated in this environment.
+- `.github/workflows/web-frontend-poc.yml` defines a two-app Node.js 26.13.1 CI matrix, uses GitHub Actions pinned to full commit SHAs, generates a lockfile, performs `npm ci`, typechecks, builds, and uploads artifacts. Because the workflow itself is introduced by this PR and its base branch does not yet contain it, no run is currently triggered for this draft PR; activation requires the workflow to reach the default branch.
 - The Next.js and Vite builds, TypeScript checks, and runtime interaction checks remain pending in CI and on the target Windows 11 machine.
 
 ## Comparison gates
