@@ -1,7 +1,12 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:schema_engine/schema_engine.dart';
 import 'package:cpie_mobile_flutter_poc/main.dart';
 
 void main() {
+  test('shared fixture validates against the Draft 2020-12 schema', () async {\n    final schemaText = await rootBundle.loadString('assets/fixtures/research-demo.schema.json');\n    final fixtureText = await rootBundle.loadString('assets/fixtures/research-demo.json');\n    final validator = JsonSchema.parse(schemaText).compile();\n    final fixture = jsonDecode(fixtureText) as Map<String, dynamic>;\n    expect(validator.isValid(fixture), isTrue);\n    final invalidFixture = Map<String, dynamic>.from(fixture)..remove('environmentStatus');\n    expect(validator.isValid(invalidFixture), isFalse);\n  });\n
   testWidgets('mobile POC launches with synthetic disclosure', (tester) async {
     await tester.pumpWidget(const CpieMobileApp());
     await tester.pumpAndSettle();
