@@ -30,7 +30,7 @@ For iOS, a local native build requires macOS/Xcode. EAS Build can produce Androi
 
 ## Flutter
 
-Candidate version at the 2026-11-12 cut: Flutter 3.50.0 with Dart 3.14.0. Flutter 3.50 requires Java 17 minimum for its default Android toolchain; the exact installed Android Studio, SDK, AGP, Gradle and NDK versions must be captured by the POC.
+Candidate version at the 2026-11-12 cut: Flutter 3.50.0 with Dart 3.14.0. The Flutter app uses `schema_engine` 1.0.0 to validate the shared Draft 2020-12 schema; this is a new MIT-licensed package with no runtime dependencies and Dart >=3.13, but still requires a clean dependency resolution and compatibility/security review. Flutter 3.50 requires Java 17 minimum for its default Android toolchain; the exact installed Android Studio, SDK, AGP, Gradle and NDK versions must be captured by the POC.
 
 ```powershell
 cd .\poc\mobile\flutter
