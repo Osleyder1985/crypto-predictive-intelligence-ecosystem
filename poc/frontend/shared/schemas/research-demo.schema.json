@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cpi.example/schemas/research-demo.schema.json",
+  "title": "CPIE shared frontend research demo fixture",
+  "description": "Experimental deterministic UI test fixture. Not a production API or market-data contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fixtureVersion",
+    "disclosure",
+    "environmentStatus",
+    "researchSelection",
+    "dataQuality",
+    "researchResult",
+    "evidence",
+    "evaluations",
+    "scenarios"
+  ],
+  "properties": {
+    "fixtureVersion": { "type": "string", "const": "1.0.0" },
+    "disclosure": { "type": "string", "const": "DEMO — DATOS SINTÉTICOS" },
+    "environmentStatus": { "type": "string", "const": "SIMULATED" },
+    "researchSelection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset", "instrument", "interval", "period", "cutoff"],
+      "properties": {
+        "asset": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["symbol", "displayName"],
+          "properties": {
+            "symbol": { "type": "string", "const": "BTC" },
+            "displayName": { "type": "string" }
+          }
+        },
+        "instrument": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "displayName", "venue"],
+          "properties": {
+            "id": { "type": "string" },
+            "displayName": { "type": "string" },
+            "venue": { "type": "string", "const": "DEMO" }
+          }
+        },
+        "interval": { "type": "string" },
+        "period": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["start", "end"],
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          }
+        },
+        "cutoff": { "type": "string", "format": "date-time" }
+      }
+    },
+    "dataQuality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "coverage", "limitations"],
+      "properties": {
+        "status": { "type": "string", "const": "PARTIAL" },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["description", "missingIntervals"],
+          "properties": {
+            "description": { "type": "string" },
+            "missingIntervals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["start", "end", "reason"],
+                "properties": {
+                  "start": { "type": "string", "format": "date-time" },
+                  "end": { "type": "string", "format": "date-time" },
+                  "reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "limitations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "researchResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "summary", "sections", "uncertainty"],
+      "properties": {
+        "status": { "type": "string", "const": "SIMULATED" },
+        "summary": { "type": "string" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "title", "status", "reason"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "status": { "type": "string", "enum": ["NOT_AVAILABLE", "PARTIAL", "SIMULATED"] },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "uncertainty": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "reason"],
+          "properties": {
+            "status": { "type": "string", "const": "NOT_QUANTIFIED" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "statement", "epistemicStatus", "publishedAt", "availableAt", "ingestedAt", "source", "limitations"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string" },
+          "statement": { "type": "string" },
+          "epistemicStatus": { "type": "string", "const": "SYNTHETIC_EXAMPLE" },
+          "publishedAt": { "type": ["string", "null"], "format": "date-time" },
+          "availableAt": { "type": ["string", "null"], "format": "date-time" },
+          "ingestedAt": { "type": ["string", "null"], "format": "date-time" },
+          "source": { "type": "string" },
+          "limitations": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "evaluations": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "createdAt", "asset", "instrument", "periodStart", "periodEnd", "cutoff", "status", "methodologyVersion", "snapshotId", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "asset": { "type": "string" },
+          "instrument": { "type": "string" },
+          "periodStart": { "type": "string", "format": "date-time" },
+          "periodEnd": { "type": "string", "format": "date-time" },
+          "cutoff": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "const": "SIMULATED" },
+          "methodologyVersion": { "type": "string" },
+          "snapshotId": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "expectedState", "expectedOutcome"],
+        "properties": {
+          "id": { "type": "string", "enum": ["overview", "research-valid", "research-invalid-range", "partial-data", "not-available", "recoverable-error", "evaluation-comparison"] },
+          "expectedState": { "type": "string", "enum": ["SIMULATED", "VALIDATION_ERROR", "PARTIAL", "NOT_AVAILABLE", "ERROR"] },
+          "input": { "type": "object" },
+          "target": { "type": "string" },
+          "evaluationIds": { "type": "array", "items": { "type": "string" } },
+          "expectedOutcome": { "type": "string" }
+        }
+      }
+    }
+  }
+}
