@@ -131,3 +131,108 @@ jobs:
             poc/mobile/flutter/pubspec.lock
             poc/mobile/flutter/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: warn
+
+  react-native-expo-ios:
+    name: React Native + Expo · iOS Simulator (manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.1"
+          package-manager-cache: false
+      - name: Record Apple toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          pod --version
+      - name: Synchronize canonical fixture
+        run: |
+          node scripts/sync_mobile_fixtures.mjs
+          node scripts/sync_mobile_fixtures.mjs --check
+      - name: Generate candidate lockfile
+        working-directory: poc/mobile/react-native
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Clean install
+        working-directory: poc/mobile/react-native
+        run: npm ci --no-audit --no-fund
+      - name: Expo compatibility check
+        working-directory: poc/mobile/react-native
+        run: npx expo install --check
+      - name: Generate iOS native project
+        working-directory: poc/mobile/react-native
+        run: npx expo prebuild --platform ios --no-install
+      - name: Install CocoaPods
+        working-directory: poc/mobile/react-native/ios
+        run: pod install
+      - name: Build iOS Simulator app
+        working-directory: poc/mobile/react-native
+        run: |
+          WORKSPACE="$(find ios -maxdepth 1 -name '*.xcworkspace' -print -quit)"
+          SCHEME="$(xcodebuild -list -workspace "$WORKSPACE" -json | /usr/bin/python3 -c 'import json,sys; print(json.load(sys.stdin)["workspace"]["schemes"][0])')"
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath build/ios-derived-data CODE_SIGNING_ALLOWED=NO build
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: cpie-mobile-react-native-expo-ios-evidence
+          path: |
+            poc/mobile/react-native/package-lock.json
+            poc/mobile/react-native/ios/Podfile.lock
+            poc/mobile/react-native/build/ios-derived-data/Build/Products/Release-iphonesimulator/*.app
+          if-no-files-found: warn
+
+  flutter-ios:
+    name: Flutter · iOS Simulator (manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Node.js for fixture sync
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.1"
+          package-manager-cache: false
+      - name: Set up Flutter 3.50.0
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
+        with:
+          flutter-version: "3.50.0"
+          channel: stable
+          cache: true
+      - name: Record Apple toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          flutter --version
+          dart --version
+      - name: Synchronize canonical fixture
+        run: |
+          node scripts/sync_mobile_fixtures.mjs
+          node scripts/sync_mobile_fixtures.mjs --check
+      - name: Resolve Flutter dependencies
+        working-directory: poc/mobile/flutter
+        run: flutter pub get
+      - name: Static analysis
+        working-directory: poc/mobile/flutter
+        run: flutter analyze
+      - name: Widget and schema tests
+        working-directory: poc/mobile/flutter
+        run: flutter test
+      - name: Build iOS Simulator app
+        working-directory: poc/mobile/flutter
+        run: flutter build ios --simulator --no-codesign
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: cpie-mobile-flutter-ios-evidence
+          path: |
+            poc/mobile/flutter/pubspec.lock
+            poc/mobile/flutter/build/ios/iphonesimulator/Runner.app
+          if-no-files-found: warn
