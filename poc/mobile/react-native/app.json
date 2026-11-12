@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "CPIE Mobile POC",
+    "slug": "cpie-mobile-poc",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "org.cpie.mobilepoc"
+    },
+    "extra": {
+      "pocDisclosure": "DEMO — DATOS SINTÉTICOS"
+    }
+  }
+}
