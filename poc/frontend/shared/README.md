@@ -31,6 +31,16 @@ Each POC must record pass/fail and evidence for the same scenarios, viewport/dev
 
 No performance thresholds or framework weights are defined here. They must come from approved requirements before scoring.
 
+## Local invariant checks
+
+From the repository root, run:
+
+```powershell
+python -m unittest discover -s poc/frontend/shared/tests -v
+```
+
+These standard-library tests check fixture-specific semantic invariants. They do **not** replace validation with a Draft 2020-12 JSON Schema validator, nor do they execute any frontend UI.
+
 ## Scope boundary
 
 This is fixture data and a manual/automated test contract only. It is not a backend, OpenAPI definition, authentication mechanism, persistence layer, real market dataset, or proof of production readiness.
