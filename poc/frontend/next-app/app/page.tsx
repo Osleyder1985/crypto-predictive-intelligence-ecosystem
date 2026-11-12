@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import fixture from "../../shared/fixtures/research-demo.json";
 import schema from "../../shared/schemas/research-demo.schema.json";
-import Ajv from "ajv";
+import Ajv from "ajv/dist/2020";
 
 type Tab = "overview" | "research" | "quality" | "availability" | "error" | "comparison";
 const validator = new Ajv({ allErrors: true, strict: false });
