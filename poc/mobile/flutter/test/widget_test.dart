@@ -43,6 +43,15 @@ void main() {
     expect(find.textContaining('VALIDATION_ERROR'), findsOneWidget);
   });
 
+  testWidgets('evaluation comparison displays both synthetic records', (tester) async {
+    await tester.pumpWidget(const CpieMobileApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Comparar'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('demo-evaluation-001'), findsOneWidget);
+    expect(find.textContaining('demo-evaluation-002'), findsOneWidget);
+  });
+
   testWidgets('local retry does not change the simulated environment', (tester) async {
     await tester.pumpWidget(const CpieMobileApp());
     await tester.pumpAndSettle();
