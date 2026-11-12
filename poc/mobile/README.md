@@ -21,6 +21,7 @@ Candidate versions at the 2026-11-12 cut: Expo SDK 58.0.23, React Native 0.88.1,
 cd .\poc\mobile\react-native
 npm install
 npm run typecheck
+npm test
 npx expo-doctor
 npm run android
 ```
