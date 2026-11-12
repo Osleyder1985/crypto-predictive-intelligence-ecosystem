@@ -21,7 +21,7 @@ void main() {
     expect(find.textContaining('Estructura técnica: NOT_AVAILABLE'), findsOneWidget);
   });
 
-  testWidgets('local retry does not change the simulated environment', (tester) async {
+  testWidgets('invalid date range is rejected', (tester) async {\n    await tester.pumpWidget(const CpieMobileApp());\n    await tester.pumpAndSettle();\n    await tester.tap(find.text('Rango inválido'));\n    await tester.pumpAndSettle();\n    expect(find.textContaining('VALIDATION_ERROR'), findsOneWidget);\n  });\n\n  testWidgets('local retry does not change the simulated environment', (tester) async {
     await tester.pumpWidget(const CpieMobileApp());
     await tester.pumpAndSettle();
     await tester.tap(find.text('Error recuperable'));
