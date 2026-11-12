@@ -8,7 +8,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
-    "doctor": "expo-doctor"
+    "test": "node --test"
   },
   "dependencies": {
     "ajv": "8.17.1",
