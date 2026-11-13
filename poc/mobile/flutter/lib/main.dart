@@ -16,6 +16,7 @@ class CpieMobileApp extends StatelessWidget {
     return WidgetsApp(
       color: const Color(0xFF17365D),
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => child ?? const SizedBox.shrink(),
       home: const DemoHome(),
     );
   }
