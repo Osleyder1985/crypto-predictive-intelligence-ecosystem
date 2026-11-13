@@ -9,16 +9,19 @@ const targets = [
   "poc/mobile/react-native/assets/fixtures",
   "poc/mobile/flutter/assets/fixtures",
 ];
-const files = ["research-demo.json", "research-demo.schema.json"];
+const files = [
+  { name: "research-demo.json", source: path.join(sourceDir, "fixtures/research-demo.json") },
+  { name: "research-demo.schema.json", source: path.join(sourceDir, "schemas/research-demo.schema.json") },
+];
 const checkOnly = process.argv.includes("--check");
 const digest = (value) => createHash("sha256").update(value).digest("hex");
 
 for (const target of targets) {
   const destination = path.join(root, target);
   if (!checkOnly) await mkdir(destination, { recursive: true });
-  for (const name of files) {
-    const source = await readFile(path.join(sourceDir, name));
-    const targetPath = path.join(destination, name);
+  for (const file of files) {
+    const source = await readFile(file.source);
+    const targetPath = path.join(destination, file.name);
     if (checkOnly) {
       const actual = await readFile(targetPath);
       if (digest(actual) !== digest(source)) {
@@ -35,7 +38,7 @@ for (const target of targets) {
   }
 }
 
-const fixture = JSON.parse(await readFile(path.join(sourceDir, files[0]), "utf8"));
+const fixture = JSON.parse(await readFile(files[0].source, "utf8"));
 const scenarioIds = fixture.scenarios.map((scenario) => scenario.id);
 const expected = [
   "overview",
