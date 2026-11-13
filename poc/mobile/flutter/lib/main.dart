@@ -138,7 +138,9 @@ class _DemoHomeState extends State<DemoHome> {
           Text('Incertidumbre: ${(result['uncertainty'] as Map)['status']}'),
         ];
       case 'research-valid':
-        final selection = data['researchSelection'] as Map<String, dynamic>;\n        final period = selection['period'] as Map<String, dynamic>;\n        return [const Text('Investigación simulada', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)), Text(result['summary'] as String), Text('Rango: ${period['start']} → ${period['end']}')];
+        final selection = data['researchSelection'] as Map<String, dynamic>;
+        final period = selection['period'] as Map<String, dynamic>;
+        return [const Text('Investigación simulada', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)), Text(result['summary'] as String), Text('Rango: ${period['start']} → ${period['end']}')];
       case 'research-invalid-range':
         return [
           const Text('Validación del período', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
