@@ -12,7 +12,7 @@
 | Dimension | React Native + Expo | Flutter |
 |---|---|---|
 | Framework candidate | React Native 0.88.1 | Flutter 3.50.0 |
-| App framework/tooling | Expo SDK 58.0.23 | Flutter SDK 3.50.0 |
+| App framework/tooling | Expo SDK 58.0.25 | Flutter SDK 3.50.0 |
 | UI language | TypeScript/JavaScript + React | Dart 3.14.0 |
 | React/runtime | React 19.3.0 | Not applicable |
 | Node runtime | Node 26.13.1 candidate; Expo SDK 58 minimum Node 22.13.x | Not required by Flutter SDK |
@@ -22,7 +22,7 @@
 | Web reuse | React concepts and TypeScript shared with Next.js web POC; UI components are not automatically shared | Same Dart/Flutter UI can target web, but it is a separate frontend technology from the Next.js POC |
 | Fixture integration | Generated JSON assets imported by Metro; Ajv Draft 2020-12 validation | Generated JSON assets loaded with rootBundle; schema_engine Draft 2020-12 validation |
 
-Expo SDK and React Native patch candidates were cross-checked against the npm stable tags at the cut-off: Expo 58.0.23, React Native 0.88.1 and Ajv 8.20.0. Expo's compatibility table provides the SDK-level React Native/React mapping; `npx expo install --check` and clean dependency resolution must still verify the exact combination. Flutter 3.50.0 / Dart 3.14.0 are from the official release announcement. A release number does not establish CPIE compatibility. The final package graph, patch updates, Android toolchain, Xcode version and iOS deployment target must be captured by clean POC runs.
+Expo SDK and React Native patch candidates were cross-checked against the npm stable tags at the cut-off: Expo 58.0.25, React Native 0.88.1 and Ajv 8.20.0. Expo's compatibility table provides the SDK-level React Native/React mapping; `npx expo install --check` and clean dependency resolution must still verify the exact combination. Flutter 3.50.0 / Dart 3.14.0 are from the official release announcement. A release number does not establish CPIE compatibility. The final package graph, patch updates, Android toolchain, Xcode version and iOS deployment target must be captured by clean POC runs.
 
 ## 2. Source-backed platform constraints
 
@@ -38,7 +38,7 @@ Official references:
 - React Native release/support overview: https://reactnative.dev/releases/overview
 - React Native Windows/Android/iOS setup: https://reactnative.dev/docs/set-up-your-environment
 - Expo SDK 58 compatibility: https://docs.expo.dev/versions/latest/
-- Expo 58.0.23 package release: https://www.npmjs.com/package/expo
+- Expo 58.0.25 package release: https://www.npmjs.com/package/expo
 - React Native 0.88.1 package release: https://www.npmjs.com/package/react-native
 - Ajv 8.20.0 package release: https://www.npmjs.com/package/ajv
 - schema_engine 1.0.0 package, API, supported dialects and MIT license: https://pub.dev/packages/schema_engine
