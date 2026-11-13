@@ -25,16 +25,16 @@ for (const target of targets) {
     if (checkOnly) {
       const actual = await readFile(targetPath);
       if (digest(actual) !== digest(source)) {
-        throw new Error(`Fixture hash mismatch: ${target}/${name}`);
+        throw new Error(`Fixture hash mismatch: ${target}/${file.name}`);
       }
     } else {
-      await copyFile(path.join(sourceDir, name), targetPath);
+      await copyFile(file.source, targetPath);
       const copied = await readFile(targetPath);
       if (digest(copied) !== digest(source)) {
-        throw new Error(`Fixture copy verification failed: ${target}/${name}`);
+        throw new Error(`Fixture copy verification failed: ${target}/${file.name}`);
       }
     }
-    console.log(`${checkOnly ? "PASS" : "SYNC"} ${target}/${name} sha256=${digest(source)}`);
+    console.log(`${checkOnly ? "PASS" : "SYNC"} ${target}/${file.name} sha256=${digest(source)}`);
   }
 }
 
