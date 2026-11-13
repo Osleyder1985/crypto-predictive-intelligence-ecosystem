@@ -50,7 +50,7 @@ Official references:
 
 ## 3. Comparable product slice
 
-Both apps consume the same canonical synthetic JSON fixture from `poc/frontend/shared`; the JSON Schema is synchronized alongside it and SHA-256 checked. A deterministic sync script materializes platform-specific asset copies. React Native validates the fixture against Draft 2020-12 at runtime with Ajv 8.20.0. Flutter validates the same schema at load and test time with `schema_engine` 1.0.0 (Dart >=3.13, MIT, no runtime dependencies). The package is new and has limited adoption signals; its inclusion is experimental and must pass POC compatibility, security and license checks before any baseline decision. No app may maintain a manually edited fixture variant.
+Both apps consume the canonical synthetic JSON fixture at `poc/frontend/shared/fixtures/research-demo.json` and the JSON Schema at `poc/frontend/shared/schemas/research-demo.schema.json`; both assets are synchronized and SHA-256 checked. A deterministic sync script materializes platform-specific asset copies. React Native validates the fixture against Draft 2020-12 at runtime with Ajv 8.20.0. Flutter validates the same schema at load and test time with `schema_engine` 1.0.0 (Dart >=3.13, MIT, no runtime dependencies). The package is new and has limited adoption signals; its inclusion is experimental and must pass POC compatibility, security and license checks before any baseline decision. No app may maintain a manually edited fixture variant.
 
 Required screens/states:
 1. Overview with persistent synthetic/demo disclosure and BTC demo instrument.
@@ -83,7 +83,7 @@ Run frameworks sequentially on the 16 GB Windows machine. Do not compare debug b
 - Fixture materialization/hash verification: `scripts/sync_mobile_fixtures.mjs`.
 - Run instructions: `poc/mobile/README.md`.
 
-This PR creates source scaffolding and CI definitions only. The workflow defines Linux Android checks/builds for pull requests and manual-only macOS iOS Simulator builds for both frameworks to avoid unexpected macOS runner charges. The workflow is not yet in the default branch, so neither path has run. No npm install, Flutter pub get, analyzer, unit/widget test, Android build, iOS build, device run, accessibility audit, performance profile, SBOM or license audit has been executed in this environment. The Flutter Draft 2020-12 validator dependency has not yet been resolved or tested against the CPIE fixture.
+This PR creates source scaffolding and CI definitions only. The workflow defines Linux Android checks/builds for pull requests and manual-only macOS iOS Simulator builds for both frameworks to avoid unexpected macOS runner charges. GitHub Actions run #8 (2026-11-12) started both Android jobs but both stopped at fixture synchronization with `ENOENT`: the sync script initially expected the fixture and schema in the shared directory root rather than their actual `fixtures/` and `schemas/` subdirectories. The script has since been corrected to use the canonical paths, and the Flutter source had two literal `\\n` sequences corrected to real line breaks. These corrections are committed on the PR branch, but a new run against the corrected HEAD has not yet been obtained. Consequently, no dependency resolution, lockfile generation, TypeScript check, Dart analysis, unit/widget test, Android build, iOS build, device run, accessibility audit, performance profile, SBOM or license audit is currently verified. The Flutter Draft 2020-12 validator dependency remains unverified against the CPIE fixture.
 
 ## 6. Decision gates
 
