@@ -1,0 +1,19 @@
+name: cpie_mobile_flutter_poc
+description: CPIE mobile Flutter comparison POC using synthetic shared fixtures.
+publish_to: "none"
+version: 0.1.0+1
+environment:
+  sdk: ">=3.14.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  schema_engine: 1.0.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+flutter:
+  uses-material-design: false
+  assets:
+    - assets/fixtures/research-demo.json
+    - assets/fixtures/research-demo.schema.json

@@ -1,0 +1,55 @@
+import { createHash } from "node:crypto";
+import { copyFile, mkdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const sourceDir = path.join(root, "poc/frontend/shared");
+const targets = [
+  "poc/mobile/react-native/assets/fixtures",
+  "poc/mobile/flutter/assets/fixtures",
+];
+const files = [
+  { name: "research-demo.json", source: path.join(sourceDir, "fixtures/research-demo.json") },
+  { name: "research-demo.schema.json", source: path.join(sourceDir, "schemas/research-demo.schema.json") },
+];
+const checkOnly = process.argv.includes("--check");
+const digest = (value) => createHash("sha256").update(value).digest("hex");
+
+for (const target of targets) {
+  const destination = path.join(root, target);
+  if (!checkOnly) await mkdir(destination, { recursive: true });
+  for (const file of files) {
+    const source = await readFile(file.source);
+    const targetPath = path.join(destination, file.name);
+    if (checkOnly) {
+      const actual = await readFile(targetPath);
+      if (digest(actual) !== digest(source)) {
+        throw new Error(`Fixture hash mismatch: ${target}/${file.name}`);
+      }
+    } else {
+      await copyFile(file.source, targetPath);
+      const copied = await readFile(targetPath);
+      if (digest(copied) !== digest(source)) {
+        throw new Error(`Fixture copy verification failed: ${target}/${file.name}`);
+      }
+    }
+    console.log(`${checkOnly ? "PASS" : "SYNC"} ${target}/${file.name} sha256=${digest(source)}`);
+  }
+}
+
+const fixture = JSON.parse(await readFile(files[0].source, "utf8"));
+const scenarioIds = fixture.scenarios.map((scenario) => scenario.id);
+const expected = [
+  "overview",
+  "research-valid",
+  "research-invalid-range",
+  "partial-data",
+  "not-available",
+  "recoverable-error",
+  "evaluation-comparison",
+];
+if (JSON.stringify(scenarioIds) !== JSON.stringify(expected)) {
+  throw new Error("Shared fixture scenario set/order changed; review the mobile POC contract.");
+}
+console.log("PASS canonical fixture parses and contains the expected seven scenarios.");
